@@ -17,7 +17,7 @@
     - `receive()`
 
 - FHE_Server  
-  - `eval(a, b, operation)`
+  - `calc(a, b, operation)`
     - `addition(obj, dataType)`
     - `subtraction(obj, dataType)`
     - `multiply(obj, dataType)`
@@ -27,3 +27,14 @@
     - `receive()`
   - `dataStore()`
     - `toDatabase()`
+
+### `p` Explanation
+The padding is used to address the previous issue with `x < m`.\
+The modification is done based on the profs algorithm.
+
+Encryption: `x' = (a +/* p) % m`, `q = (a +/m p) // m`.\
+Decryption:
+```
+a+b = (a'+b') + (q1+q2)*m - 2*p
+a*b = [ (a'+b') + (a'*q2 + b'*q1 + q1*q2*m)*m ] // k^2
+```
