@@ -1,0 +1,16 @@
+Database application flow
+
+import websocket
+import pickle   -> Objects serialization (storage of config, secret key, and operation)
+
+
+User enter IP and port
+	|
+	| ---> Socket connection to server
+	|      Check if can establish connection and if FHE service has started
+	v
+User create new session / use the old session
+	|
+	| ---> If using old session, fetch the old session by comparing the hashed value
+	|      of the session # and private key. If doesn't match, create a new session
+	v
