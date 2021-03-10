@@ -14,3 +14,15 @@ User create new session / use the old session
 	| ---> If using old session, fetch the old session by comparing the hashed value
 	|      of the session # and private key. If doesn't match, create a new session
 	v
+new set post (X={x1,x2,...})
+	|
+	| ---> User enters local tag for set, and send HTTP (secure w/ HTTPS) post request to server. Request will include user id, session id, and set values
+	|      (possibly hash of set?). The server will verify user, generate a new set id, and store the values on the DB. The server will then return the generated set
+	|      id, which the client will associate with the local tag.
+	v
+new operation post ("set_1 + set_2 * set_3")
+	|
+	| ---> User enters new set tag, sends operation post request with equation of sets, these sets will be resolve from local tags to server IDs automatically.
+	|      Server will parse the op request, and execute accordingly. Server will generate new set ID, store new set values, and return the ID which the client
+	|      will associate accordingly.
+	v
