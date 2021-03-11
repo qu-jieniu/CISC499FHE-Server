@@ -1,0 +1,12 @@
+{% include 'header.html' %}
+
+<h4> This is the demo app page </h4>
+
+<form method="POST">
+{{ form.hidden_tag() }}
+{{ form.ip.label }}
+{{ form.ip() }}
+{{ form.submit(class="btn btn-primary") }}
+</form>
+
+</html>

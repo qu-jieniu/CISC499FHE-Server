@@ -1,6 +1,6 @@
 #!/bin/local/python3
 
-from cryptography.fernet import Fernet as crypto
+# from cryptography.fernet import Fernet as crypto
 import math
 import base64
 import os
@@ -8,7 +8,7 @@ import os
 
 class FHE_Client:
     def __init__(self):
-        self.key = crypto.generate_key()  #key for q
+        # self.key = crypto.generate_key()  #key for q
         self.m = int.from_bytes(os.urandom(4), byteorder="big") #16-byte modolo
 
         self.p = int.from_bytes(os.urandom(4), byteorder="big")

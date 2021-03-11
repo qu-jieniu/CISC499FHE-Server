@@ -2,13 +2,13 @@ class FHE_Polynomial:
 
     def __init__(self,*coeffs):
         self.coefficients = list(coeffs)
-    
+
     def __repr__(self):
-        return "Polynomial" + str(tuple(self.coefficients)) 
+        return "Polynomial" + str(tuple(self.coefficients))
 
     def getCoefficients(self):
         return self.coefficients # return as list
-    
+
     def __str__(self):
         def x_expr(deg):
             if deg == 0:
@@ -18,14 +18,14 @@ class FHE_Polynomial:
             else:
                 res = "x^"+str(deg)
             return res
-    
+
         deg = len(self.coefficients) - 1
         print(deg)
         res = ""
 
         for i in range(0,deg+1):
             coeff = self.coefficients[i]
-        
+
             if deg-i != 0:
                 if abs(coeff) == 1:
                     if coeff < 0:
@@ -54,9 +54,9 @@ class FHE_Polynomial:
 
 
 
-poly1 = FHE_Polynomial(1,2,3,4)
-poly2 = FHE_Polynomial(-2,-4,3,-1)
-
-print(str(poly1))
-print(str(poly2))
-print(poly2(6))
+# poly1 = FHE_Polynomial(1,2,3,4)
+# poly2 = FHE_Polynomial(-2,-4,3,-1)
+#
+# print(str(poly1))
+# print(str(poly2))
+# print(poly2(6))

@@ -1,0 +1,49 @@
+{% include 'header.html' %}
+
+<div id="login">
+
+  {% if not sessionmgmt.server_connected %}
+  <h5> Connect to Server </h5>
+
+  <form action=" " method="POST">
+  {{ ipform.csrf_token }}
+  <div class="input-group" id="connect_server">
+    <div class="col-sm-2">
+      {{ ipform.ip(class="form-control", id="label2") }}
+      <small class="form-text text-muted"> {{ ipform.ip.label }} </small>
+    </div>
+    <div class="col-sm-2">
+      {{ ipform.port(class="form-control", id="label2") }}
+      <small class="form-text text-muted"> {{ ipform.port.label }} </small>
+    </div>
+  </div>
+  {{ ipform.submit(class="btn btn-primary login-button") }}
+  </form>
+
+
+
+  {% endif %}
+
+
+  {% if sessionmgmt.server_connected %}
+  <form method="POST">
+  {{ sessionmgmt.csrf_token }}
+  <div id="create_session">
+    <h5> Create a new session</h5>
+    {{ sessionmgmt.newSession(class="btn btn-primary login-button") }}
+  </div>
+  </form>
+
+  <div id="exist_session">
+    <h5> Upload an existing session</h5>
+    {{ sessionmgmt.oldSession(class="btn btn-primary login-button") }}
+  </div>
+
+  {% endif %}
+
+</div>
+
+
+</body>
+
+</html>
