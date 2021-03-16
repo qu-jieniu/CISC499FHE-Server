@@ -1,0 +1,123 @@
+{% include 'header.html' %}
+
+<div id="session_page">
+  <h6> Current Session Name: <span style="color: rgb(0, 123, 250)"> {{ page }}</span> </h6>
+  <h6> Key Size: <span style="color: rgb(0, 123, 250)">{{ session['key_size'] }} Bits</span> </h6>
+  <h6> Data Type: <span style="color: rgb(0, 123, 250)">{{ session['data_type'] }}</span> </h6>
+
+
+   <!-- <h6> Key Size: &nbsp;
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="keyOptions" id="keyOptions1" value="option1">
+      <label class="form-check-label" for="keyOptions1">512 bits</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="keyOptions" id="keyOptions2" value="option2">
+      <label class="form-check-label" for="keyOptions2">1024 bits</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="keyOptions" id="keyOptions3" value="option3">
+      <label class="form-check-label" for="keyOptions3">2048 bits</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="keyOptions" id="keyOptions4" value="option4">
+      <label class="form-check-label" for="keyOptions4">4096 bits</label>
+    </div>
+  </h6>
+  <br>
+  <h6> Data Type: &nbsp;
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="typeOptions" id="typeOptions1" value="option1">
+      <label class="form-check-label" for="typeOptions1">Integers</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="typeOptions" id="typeOptions2" value="option2">
+      <label class="form-check-label" for="typeOptions2">Polynomials</label>
+    </div>
+  </h6> -->
+
+  <br>
+  <h6> Data Entry: </h6>
+
+  {% if session['data_type']=='Polynomial' %}
+  <form method='POST'>
+    {{ dataEntry_poly.csrf_token }}
+    <div class="row">
+      <div class="col-sm-3">
+        {{ dataEntry_poly.data_label_poly(class="form-control") }}
+        <small class="form-text text-muted">{{ dataEntry_poly.data_label_poly.label }}</small>
+      </div>
+      <div class="text"> = </div>
+      <div class="col-sm-2">
+        {{ dataEntry_poly.data_field_poly(class="form-control") }}
+        <small class="form-text text-muted">{{ dataEntry_poly.data_field_poly.label }}</small>
+      </div>
+      <div class="col-sm-2">
+        {{ dataEntry_poly.submit_poly(class="btn btn-primary") }}
+      </div>
+    </div>
+  </form>
+
+  {% elif session['data_type']=='Integer' %}
+
+  <form method='POST'>
+    {{ dataEntry_int.csrf_token }}
+    <div class="row">
+      <div class="col-sm-3">
+        {{ dataEntry_int.data_label_int(class="form-control") }}
+        <small class="form-text text-muted">{{ dataEntry_int.data_label_int.label }}</small>
+      </div>
+      <div class="text"> = </div>
+      <div class="col-sm-2">
+        {{ dataEntry_int.data_field_int(class="form-control") }}
+        <small class="form-text text-muted">{{ dataEntry_int.data_field_int.label }}</small>
+      </div>
+      <div class="col-sm-2">
+        {{ dataEntry_int.submit_int(class="btn btn-primary") }}
+      </div>
+    </div>
+  </form>
+
+  {% endif %}
+
+
+  <br>
+
+  <h6> Data Evaluation: </h6>
+  <div class="row">
+    <div class="col-sm-3">
+      <input type="text" class="form-control" id="label2" placeholder="numOfElectronics">
+      <small class="form-text text-muted">Label</small>
+    </div>
+    <div class="text"> = </div>
+    <div class="col-sm-5">
+      <input type="text" class="form-control" id="data2" placeholder="numOfPhone + numOfTablet + numOfComputer">
+      <small class="form-text text-muted">Expression</small>
+    </div>
+    <div class="col-sm-2">
+      <button type="submit" class="btn btn-primary" id='submit_buttom'>Submit</button>
+    </div>
+  </div>
+<br>
+
+<h6> Data Decryption: </h6>
+<div class="row">
+  <div class="col-sm-3">
+    <input type="text" class="form-control" id="label2" placeholder="numOfElectronics">
+    <small class="form-text text-muted">Label</small>
+  </div>
+  <div class="col-sm-2">
+    <button type="submit" class="btn btn-primary" id='submit_buttom'>Get</button>
+  </div>
+</div>
+
+
+
+</div>
+
+
+
+
+</body>
+
+</html>

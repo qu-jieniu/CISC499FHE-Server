@@ -14,8 +14,9 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
   <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static',filename='styles/responsive.css') }}">
   <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <script type="text/javascript" src="{{ url_for('static', filename='js/custom.js') }}"> </script>
+
 
 </head>
 
@@ -24,12 +25,13 @@
   <h4 id="title"> CISC 499 - Homomorphic Encryption </h4>
     <div id="nav-bar">
       <a href="/about">About</a>
-      <a href="/login">Database Application</a>
+      <a href="/database/connect">Database Application</a>
       <a href="/demo">Demo Application</a>
     </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% for category, message in messages %}
-        <div class="{{ category }}">{{ message }}</div>
+        <div class="alert {{ category }} ">{{ message|safe }}</div>
+        <br>
       {% endfor %}
     {% endwith %}
