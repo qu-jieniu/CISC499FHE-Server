@@ -3,26 +3,71 @@ Database application flow
 import websocket
 import pickle   -> Objects serialization (storage of config, secret key, and operation)
 
+See the changes on the Flask branch.
 
 User enter IP and port
 	|
-	| ---> Socket connection to server
+	| ---> HttpRequest to server {'operation':'connectserver'}
 	|      Check if can establish connection and if FHE service has started
+	|      Timeout after 2.5 secs if recv no response
+	|
 	v
 User create new session / use the old session
 	|
 	| ---> If using old session, fetch the old session by comparing the hashed value
 	|      of the session # and private key. If doesn't match, create a new session
+	|
+	|		   uuid -> MAC address; session_id -> session name; -> to be resolved as server id
+	|      status -> success/fail; msg -> "session_id already exist" / "checksum doesn't match" / "private_key_hash doesn't match"
+	|      checksum -> uploaded at the end of session for saved pickle object; if null, forfeit the session
+	|      operation: 'session'/ 'set'
+	|
+	|      If new session, client requests {operation, uuid, session_id, pk_hash}, server responds {status, msg, server_uuid, server_session_id}
+	|
+	|			 If old session, client requests {operation, uuid, session_id, pk_hash}, server responds {status, msg, checksum}
 	v
 new set post (X={x1,x2,...})
 	|
 	| ---> User enters local tag for set, and send HTTP (secure w/ HTTPS) post request to server. Request will include user id, session id, and set values
 	|      (possibly hash of set?). The server will verify user, generate a new set id, and store the values on the DB. The server will then return the generated set
 	|      id, which the client will associate with the local tag.
+	|
+	|      msg may include some error like set_id exists, but I will be doing verification on the client-side first
+	|      client requests {operation, server_uuid, server_session_id, pk_hash, set_id, [set_values]},
+	|      server responds {status, msg, server_set_id}
 	v
 new operation post ("set_1 + set_2 * set_3")
 	|
 	| ---> User enters new set tag, sends operation post request with equation of sets, these sets will be resolve from local tags to server IDs automatically.
 	|      Server will parse the op request, and execute accordingly. Server will generate new set ID, store new set values, and return the ID which the client
 	|      will associate accordingly.
+	|
+	|      client will parse and verify that the set operation is legal before sending, e.g [a, '+', b, '*', c]. Client will keep this information for decryption
+	|      client requests {operation, server_uuid, server_session_id, pk_hash, new_set_id, [server_set_id, arithmetics]}
+	|      server responds {status, msg, new_server_set_id}
+  -
+delete set post
+	|
+	| ---> client requests {operation, server_uuid, server_session_id, pk_hash, server_set_id}
+	|      server responds {status, msg}
 	v
+decrypt a set
+	|
+	| ---> client requests {operation, server_uuid, server_session_id, pk_hash, server_set_id}
+	|      server response {status, msg, [set_values]}
+	v
+decrypt all sets
+	|
+	| ---> client requests {operation, server_uuid, server_session_id, pk_hash}
+	|      server response {status, msg, {server_set_id:[set_values]}}
+	v
+Save session to pickled file
+	|
+	| ---> client requests {operation, server_uuid, server_session_id, pk_hash, checksum}
+	|      server response {status, msg}
+	-
+delete session post
+	|
+	| ---> client requests {operation, server_uuid, server_session_id, pk_hash}
+	|      server responds {status, msg}
+	.
