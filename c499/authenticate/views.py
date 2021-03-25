@@ -57,14 +57,15 @@ def my_jwt(request):
     user = Token.objects.get(key=stripped).user
     
     refresh = RefreshToken.for_user(user)
-
+    
+    
     return Response({
         'refresh': str(refresh),
         'access': str(refresh.access_token),
     })
 
 def strip_token(token_string):
-    return token_string.lstrip('Token ')
+    return token_string.split()[1]
         
 
 '''
