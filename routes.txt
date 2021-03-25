@@ -1,0 +1,8 @@
+'GET'{site}/admin/                
+      DB Administration - This is package provided by Django for a interface for interacting with DB components. 
+      
+'POST' {site}/signup/ body={username="ex_user",password1="pass_example",password2="pass_example"}
+      Generic signup route - Include username, password x2 (verification), returns Device Token
+      
+ 'POST' {site}/api/jwt/ headers={"Authorization": "Token fdhaf92fnq309f"}
+      JWT token obtain - Include header with device token, returns a JWT token and a refresh token
