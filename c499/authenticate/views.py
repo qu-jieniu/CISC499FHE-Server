@@ -1,12 +1,7 @@
 from django.shortcuts import render
 
-from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 
-from django.contrib.auth.decorators import login_required
-
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
 
 from hashlib import sha1
 from datetime import datetime
@@ -33,6 +28,10 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+
 @api_view(['POST'])
 def signup(request):
     if request.method == 'POST':
@@ -52,7 +51,7 @@ def signup(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def my_jwt(request):
+def obtain_jwt_pair(request):
     stripped = strip_token(request.headers["Authorization"])
     user = Token.objects.get(key=stripped).user
     

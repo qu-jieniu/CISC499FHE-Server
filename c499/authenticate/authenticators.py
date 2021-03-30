@@ -1,7 +1,7 @@
 from rest_framework.authtoken.models import Token 
 
 # BEARER -> JWT
-# AUTH
+# AUTH -> Device Token
 
 
 class DeviceTokenAuthentication(authentication.BaseAuthentication):
