@@ -1,6 +1,41 @@
 from rest_framework import serializers 
 from .models import Integer,IntegerSet,Session
+from django.core import serializers as dserializers
 
+
+def set_to_dict(set_model):
+    ints_data = Integer.objects.filter(set_id = set_model)
+    
+    int_data_list = []
+
+    for int_data in ints_data:
+        int_values = {}
+        int_values["index"] = int_data.index
+        int_values["X"] = int_data.X
+        int_values["q"] = int_data.q
+        int_data_list.append(int_values)
+
+    serialized = {}
+    
+    serialized['set_id'] = set_model.set_id
+    serialized['integers'] = int_data_list
+
+    return serialized
+
+def session_to_dict(session_model):
+    sets_data = IntegerSet.objects.filter(session_id = session_model)
+    
+    set_data_list = []
+
+    for set_data in sets_data:
+       set_data_list.append(set_to_dict(set_data))
+
+    serialized = {}
+    
+    serialized['session_id'] = session_model.session_id
+    serialized['integer_sets'] = set_data_list
+
+    return serialized
 
 class IntegerSerializer(serializers.ModelSerializer):
     index = serializers.IntegerField(required=True,min_value=0)    
@@ -10,22 +45,6 @@ class IntegerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Integer
         fields = ['index','X','q']
-
-class IntegerSetGetSerializer(serializers.ModelSerializer):    
-    user_id = serializers.CharField(required=False,allow_blank=False)
-    session_id = serializers.CharField(required=False,allow_blank=False)
-    set_id =  serializers.CharField(required=False,allow_blank=False) 
-    
-    integers = IntegerSerializer(many=True,read_only=True)
-    class Meta:
-        model = IntegerSet
-        fields = '__all__'
-
-class IntegerSetRequestSerializer(serializers.Serializer):
-    user_id = serializers.CharField(required=False,allow_blank=False)
-    session_id = serializers.CharField(required=False,allow_blank=False)
-    set_id =  serializers.CharField(required=False,allow_blank=False)  
-
 
 class IntegerSetPostSerializer(serializers.ModelSerializer):
     user_id = serializers.CharField(required=True,allow_blank=False)

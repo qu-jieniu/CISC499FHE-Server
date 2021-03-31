@@ -9,7 +9,7 @@ from rest_framework.response import Response
 
 # Project
 from .models import Integer,IntegerSet,Session
-from .serializers import IntegerSerializer,IntegerSetGetSerializer,IntegerSetRequestSerializer,IntegerSetSerializer,SessionPostSerializer,IntegerSetPostSerializer
+from .serializers import IntegerSerializer,IntegerSetSerializer,SessionPostSerializer,IntegerSetPostSerializer
 from rest_framework.authtoken.models import Token
 
 # Misc
@@ -24,14 +24,16 @@ server_secret = "cisc499_fully_homomorphic_encryption"
 @api_view(['GET','POST','DELETE'])
 def setAPIv1(request):
     if request.method == 'GET':
-        req_serializer = IntegerSetRequestSerializer(data = request.data)
-        if req_serializer.is_valid():
-            integers = Integer.objects.filter(set_id=req_serializer.validated_data['set_id']) 
-            serialized = IntegerSerializer(data=integers,many=True,read_only=True)
-            if serialized.is_valid():
-                return Response(serializer.validated_data)        
-            return Response("bad serializer")
-        return Response("bad request")
+        working_set = request.data['set_id']
+
+        queried = IntegerSet.objects.filter(set_id=working_set)
+        
+        if not queried:
+            return Response("bad request") # replace with 400
+        else:     
+            set_dict = set_to_dict(queried)
+            return Response(set_dict)
+        
 
     elif request.method == 'POST':
         serializer = IntegerSetPostSerializer(data = request.data)
@@ -46,15 +48,31 @@ def setAPIv1(request):
             serializer.save()
             return Response(serializer.validated_data['set_id'])
         else:
-            return Response(serializer.initial_data)
+            return Response("bad request")
         
     elif request.method == 'DELETE':
-        return Response("set delete")
+        working_set = request.data['set_id']       
+        queried = IntegerSet.objects.get(set_id=working_set)
+
+        if not queried:
+            queried.delete()
+            return Response(working_set+" delete successful")
+        else:
+            return Response("bad request")
 
 @api_view(['GET','POST','DELETE'])
 def sessionAPIv1(request):
     if request.method == 'GET':
-        return Response("set get")
+        working_session = request.data['session_id']
+
+        queried = Session.objects.filter(session_id=working_session)
+        
+        if not queried:
+            return Response("bad request") # replace with 400
+        else:     
+            session_dict = session_to_dict(queried)
+            return Response(session_dict)
+
     elif request.method == 'POST':
         serializer = SessionPostSerializer(data = request.data)
         
@@ -67,17 +85,18 @@ def sessionAPIv1(request):
             return Response("didnt work")
         
     elif request.method == 'DELETE':
-        return Response("set delete")
+        working_session = request.data['session_id']       
+        queried = Session.objects.get(set_id=working_session)
+
+        if not queried:
+            queried.delete()
+            return Response(working_session+" delete successful")
+        else:
+            return Response("bad request")
+
 
 def create_set_id():
     set_id = hash(str(datetime.utcnow())+server_secret)
     set_utf = str(set_id).encode("utf-8")
     return hexlify(set_utf).decode('utf-8')
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def integerList(request):
-    integers = Integer.objects.all()
-    serializer = IntegerSerializer(integers,many=True)
-    return Response(serializer.data)
 
