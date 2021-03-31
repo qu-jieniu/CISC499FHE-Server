@@ -11,13 +11,13 @@ from rest_framework.response import Response
 from .models import Integer,IntegerSet,Session
 from .serializers import IntegerSerializer,IntegerSetSerializer,SessionPostSerializer,IntegerSetPostSerializer
 from rest_framework.authtoken.models import Token
+from eqparser import parse_eq
 
 # Misc
 import base64
 from binascii import hexlify
 from datetime import datetime
 from hashlib import sha1
-from lark import Lark, Transformer
 
 server_secret = "cisc499_fully_homomorphic_encryption"
 
@@ -93,6 +93,28 @@ def sessionAPIv1(request):
             return Response(working_session+" delete successful")
         else:
             return Response("bad request")
+
+
+@api_view(['POST'])
+def operationAPIv1(request):
+    if request.method == 'POST':
+        session_id = request.data['session_id']
+        equation = request.data['equation']
+        try:
+            parsed = parse_eq(str(equation))
+        except:
+            return Response("bad equation")
+
+        session = Session.objects.get(session_id=session_id)
+        set_obj = IntegerSet.objects.create(set_id=create_set_id(),session_id=session)
+
+        index = 0
+        for int_val in parsed:
+            Integer.objects.create(set_id=set_obj,index=index,X=int_val)
+            index += 1
+        return Response(set_obj.set_id)
+    else:
+        return Response("bad HTTP method")
 
 
 def create_set_id():

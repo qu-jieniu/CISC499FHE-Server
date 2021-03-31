@@ -14,6 +14,12 @@ GET SESSION
 "session_id":"session_example"
 }
 
+POST OPERATION
+{
+"user_id":"56ed72b87ca333f02ef5eaef99296194768c5488",
+"session_id":"session_example"
+"equation":"first_set+second_set"
+}
 
 POST INTEGERSET
 {
