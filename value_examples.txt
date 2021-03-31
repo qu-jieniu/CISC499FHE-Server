@@ -8,6 +8,13 @@ GET INTEGERSET
 "set_id":"set_id_example"
 }
 
+GET SESSION
+{
+"user_id":"56ed72b87ca333f02ef5eaef99296194768c5488",
+"session_id":"session_example"
+}
+
+
 POST INTEGERSET
 {
     "user_id":"56ed72b87ca333f02ef5eaef99296194768c5488",
