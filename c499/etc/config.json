@@ -1,0 +1,5 @@
+{
+    "SECRET_KEY" : "cisc499fheserver",
+    "IP":"IP GOES HERE... TAKE FROM ENV?",
+    "DNS":"DNS GOES HERE"
+}

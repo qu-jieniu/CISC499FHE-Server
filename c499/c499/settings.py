@@ -13,10 +13,11 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from pathlib import Path
 import os
 import json
+from hashlib import sha256
 
 
-with open('/etc/fhe-config.json') as config_file:
-	config = json.load(config_file)
+with open('etc\config.json','r') as config_file:
+    config = json.load(config_file)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,15 +27,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config['SECRET_KEY']
+SECRET_KEY = sha256(config['SECRET_KEY'].rstrip().encode('utf-8')).hexdigest()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['thor.myddns.me','192.168.40.189']
-
-
 DEBUG = False
+
+ALLOWED_HOSTS = [config['IP'],config['DNS']]
+
+# HTTPS Security
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+SECURE_SSL_REDIRECT = True
 
 # Application definition
 
