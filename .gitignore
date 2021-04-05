@@ -5,3 +5,8 @@
 /init_stage.md
 /.gitignore
 /venv
+
+venv/
+venv/**
+__pycache__/
+__pycache__/**
