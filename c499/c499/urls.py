@@ -26,18 +26,23 @@ from rest_framework.authtoken import views
 
 from authenticate import views as auth_views
 
+from .views import statusAPIv1
+
 urlpatterns = [
+    # utilities
     path('admin/', admin.site.urls),
+    path('status/',statusAPIv1, name='status'),
+    
+    # FHE
     path('integers/', include('integers.urls')),
     path('polynomials/',include('polynomials.urls')),
     
-
     # Device Token
     path('signup/',auth_views.signup,name='signup'), # returns device token after user creation
     path('api/auth/',views.obtain_auth_token,name='token_obtain'), # returns device token existing user
 
     # JWT 
-    path('api/jwt/',auth_views.my_jwt,name="token_obtain_pair"),
-    path('api/jwt/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/jwt/verify/', jwt_views.TokenVerifyView.as_view(), name='token_verify'),
+    path('api/jwt/',auth_views.obtain_jwt_pair,name="jwt_obtain_pair"),
+    path('api/jwt/refresh/', jwt_views.TokenRefreshView.as_view(), name='jwt_refresh'),
+    path('api/jwt/verify/', jwt_views.TokenVerifyView.as_view(), name='jwt_verify'),
 ]

@@ -1,130 +1,124 @@
+# Django 
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 
-from rest_framework.decorators import api_view
+# DRF 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from hashlib import sha1
-from datetime import datetime
+# Project
+from .models import Integer,IntegerSet,Session
+from .serializers import IntegerSerializer,IntegerSetSerializer,SessionPostSerializer,IntegerSetPostSerializer
+from rest_framework.authtoken.models import Token
+from eqparser import parse_eq
 
-from binascii import hexlify
-
-from lark import Lark,Transformer
-
-from .serializers import IntegersSerializer,IntegersSetSerializer
-
-from .models import Integers
+# Misc
 import base64
+from binascii import hexlify
+from datetime import datetime
+from hashlib import sha1
 
+server_secret = "cisc499_fully_homomorphic_encryption"
 
-# Create your views here.
+@api_view(['GET','POST','DELETE'])
+def setAPIv1(request):
+    if request.method == 'GET':
+        working_set = request.data['set_id']
 
-server_secret = "cisc499"
- 
-@api_view(['GET'])
-def index(request):
-    # list out url paths available to user
-    api_urls = {
-        'integers':'/session/'    
-    }
-    return Response(api_urls)
-
-@api_view(['GET'])
-#@authentication_classes([TokenAuthentication])
-#@permission_classes([IsAuthenticated])
-def integerList(request):
-    integers = Integers.objects.all()
-    serializer = IntegersSerializer(integers,many=True)
-    return Response(serializer.data)
-
-@api_view(['GET'])
-def integerBySet(request,set_id):
-    integers = Integers.objects.filter(set_id=set_id)
-    serializer = IntegersSerializer(integers,many=True)
-    return Response(serializer.data)
-
-
-@api_view(['POST']) # currently only works with JSON list [{..}] 
-def post_setV2(request):
-    set_id = hash(str(datetime.utcnow())+server_secret)
+        queried = IntegerSet.objects.filter(set_id=working_set)
         
-    set_utf = str(set_id).encode("utf-8")
+        if not queried:
+            return Response("bad request") # replace with 400
+        else:     
+            set_dict = set_to_dict(queried)
+            return Response(set_dict)
+        
 
-    hexed = hexlify(set_utf).decode('utf-8')
-
-    for index in request.data:
-        serializer = IntegersSerializer(data=index)    
-
-        if serializer.is_valid():
+    elif request.method == 'POST':
+        serializer = IntegerSetPostSerializer(data = request.data)
+        
+        if serializer.is_valid():      
+            sent_user = serializer.validated_data.pop('user_id')
+            session = Session.objects.get(session_id=serializer.validated_data.pop('session_id'))
             
-            serializer.validated_data["set_id"] = hexed
-        
+            serializer.validated_data['set_id']=create_set_id()  
+            serializer.validated_data['session_id']=session
+            
             serializer.save()
+            return Response(serializer.validated_data['set_id'])
+        else:
+            return Response("bad request")
+        
+    elif request.method == 'DELETE':
+        working_set = request.data['set_id']       
+        queried = IntegerSet.objects.get(set_id=working_set)
 
-    return Response(hexed)
+        if not queried:
+            queried.delete()
+            return Response(working_set+" delete successful")
+        else:
+            return Response("bad request")
 
-def post_set(request):
-    # user_id
-    # session_id
-    body_unicode = request.body.decode('utf-8')
-    body = json.loads(body_unicode)
-    
-    user_id = body['user_id']
-    session_id = body['session_id']
-    
-    # generate set ID
-    set_id = sha1(server_secret + str(datetime.now))
+@api_view(['GET','POST','DELETE'])
+def sessionAPIv1(request):
+    if request.method == 'GET':
+        working_session = request.data['session_id']
 
-    # input all elements of set to database under set id
-    elements = [] # [(X0,q0),(X1,q1),...]
-    for key in body: # key -> (X,q)
-        if key != 'user_id' or key != 'session_id':
-            elements[int(key)] = body[key]
+        queried = Session.objects.filter(session_id=working_session)
+        
+        if not queried:
+            return Response("bad request") # replace with 400
+        else:     
+            session_dict = session_to_dict(queried)
+            return Response(session_dict)
 
-    temp = None
-    index = 0
-    for elem in elements:
-        temp = models.Integers(user_id = user_id, session_id=session_id, set_id = set_id, index=index, X=elem[0],q=elem[1])
-        temp.save()
-        index += 1
+    elif request.method == 'POST':
+        serializer = SessionPostSerializer(data = request.data)
+        
+        if serializer.is_valid():      
+            user = Token.objects.get(key=serializer.validated_data.pop('user_id'))
+            serializer.validated_data['user_id']=user
+            serializer.save()
+            return Response("it worked")
+        else:
+            return Response("didnt work")
+        
+    elif request.method == 'DELETE':
+        working_session = request.data['session_id']       
+        queried = Session.objects.get(set_id=working_session)
 
-    # return set id
-    return HttpResponse(set_id)
-
-def post_session(request):
-    # iterate over all sets in session
-    # check existence
-    test = models.Integers.objects.all()
-    # post any sets in session that do not exists
-
-    # return successfully posted
-    return HttpResponse("this is a value: " + str(test[0].X))
-
-def post_operation(request):
-    # run_parser
-
-    # run_transformer
-
-    # generate new set ID and store under set ID
-
-    # return new set ID
-    return HttpResponse("this is ID of the new set:")
+        if not queried:
+            queried.delete()
+            return Response(working_session+" delete successful")
+        else:
+            return Response("bad request")
 
 
-def get_set(request):
-    # encode in form
-    # { user_id
-    #   session_id
-    #   set_id
-    #   0 : (X0,q0)
-    #   ...
-    # }
+@api_view(['POST'])
+def operationAPIv1(request):
+    if request.method == 'POST':
+        session_id = request.data['session_id']
+        equation = request.data['equation']
+        try:
+            parsed = parse_eq(str(equation))
+        except:
+            return Response("bad equation")
 
-    return HttpResponse("these are the values of your sets")
+        session = Session.objects.get(session_id=session_id)
+        set_obj = IntegerSet.objects.create(set_id=create_set_id(),session_id=session)
 
-def get_session(request):
-    # same encoding form but multiple sets under the session
-    return HttpResponse("These are the sets and their values of your session")
+        index = 0
+        for int_val in parsed:
+            Integer.objects.create(set_id=set_obj,index=index,X=int_val)
+            index += 1
+        return Response(set_obj.set_id)
+    else:
+        return Response("bad HTTP method")
 
 
+def create_set_id():
+    set_id = hash(str(datetime.utcnow())+server_secret)
+    set_utf = str(set_id).encode("utf-8")
+    return hexlify(set_utf).decode('utf-8')
 
