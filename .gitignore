@@ -5,3 +5,5 @@
 /init_stage.md
 /.gitignore
 /venv
+
+venv/**
