@@ -1,0 +1,13 @@
+1. install python3
+
+2. check pip/install if needed
+
+2. create virtual environment
+python3 -m venv venv
+
+3. activate venv
+source tutorial-env/bin/activate
+
+4. install python libraries
+python3 -m pip install -r backend_requirements.txt
+
