@@ -1,41 +1,9 @@
 {% include 'header.html' %}
 
 <div id="session_page">
-  <h6> Current Session Name: <span style="color: rgb(0, 123, 250)"> {{ page }}</span> </h6>
-  <h6> Key Size: <span style="color: rgb(0, 123, 250)">{{ session['key_size'] }} Bits</span> </h6>
-  <h6> Data Type: <span style="color: rgb(0, 123, 250)">{{ session['data_type'] }}</span> </h6>
-
-
-   <!-- <h6> Key Size: &nbsp;
-    <div class="form-check form-check-inline">
-      <input class="form-check-input" type="radio" name="keyOptions" id="keyOptions1" value="option1">
-      <label class="form-check-label" for="keyOptions1">512 bits</label>
-    </div>
-    <div class="form-check form-check-inline">
-      <input class="form-check-input" type="radio" name="keyOptions" id="keyOptions2" value="option2">
-      <label class="form-check-label" for="keyOptions2">1024 bits</label>
-    </div>
-    <div class="form-check form-check-inline">
-      <input class="form-check-input" type="radio" name="keyOptions" id="keyOptions3" value="option3">
-      <label class="form-check-label" for="keyOptions3">2048 bits</label>
-    </div>
-    <div class="form-check form-check-inline">
-      <input class="form-check-input" type="radio" name="keyOptions" id="keyOptions4" value="option4">
-      <label class="form-check-label" for="keyOptions4">4096 bits</label>
-    </div>
-  </h6>
-  <br>
-  <h6> Data Type: &nbsp;
-    <div class="form-check form-check-inline">
-      <input class="form-check-input" type="radio" name="typeOptions" id="typeOptions1" value="option1">
-      <label class="form-check-label" for="typeOptions1">Integers</label>
-    </div>
-    <div class="form-check form-check-inline">
-      <input class="form-check-input" type="radio" name="typeOptions" id="typeOptions2" value="option2">
-      <label class="form-check-label" for="typeOptions2">Polynomials</label>
-    </div>
-  </h6> -->
-
+  <p> Session Name: <span style="color: rgb(0, 123, 250)"> {{ page }}</span> <br>
+    Key Size: <span style="color: rgb(0, 123, 250)">{{ session['key_size'] }} Bits</span> ,
+    Data Type: <span style="color: rgb(0, 123, 250)">{{ session['data_type'] }}</span> </p>
   <br>
   <h6> Data Entry: </h6>
 
@@ -84,32 +52,69 @@
   <br>
 
   <h6> Data Evaluation: </h6>
-  <div class="row">
-    <div class="col-sm-3">
-      <input type="text" class="form-control" id="label2" placeholder="numOfElectronics">
-      <small class="form-text text-muted">Label</small>
+  <form method='POST'>
+    {{ dataEval.csrf_token }}
+    <div class="row">
+      <div class="col-sm-3">
+        {{ dataEval.data_label_eval(class="form-control") }}
+        <small class="form-text text-muted">{{ dataEval.data_label_eval.label }}</small>
+      </div>
+      <div class="text"> = </div>
+      <div class="col-sm-5">
+        {{ dataEval.data_field_eval(class="form-control") }}
+        <small class="form-text text-muted">{{ dataEval.data_field_eval.label }}</small>
+      </div>
+      <div class="col-sm-2">
+        {{ dataEval.submit_eval(class="btn btn-primary") }}
+      </div>
     </div>
-    <div class="text"> = </div>
-    <div class="col-sm-5">
-      <input type="text" class="form-control" id="data2" placeholder="numOfPhone + numOfTablet + numOfComputer">
-      <small class="form-text text-muted">Expression</small>
-    </div>
-    <div class="col-sm-2">
-      <button type="submit" class="btn btn-primary" id='submit_buttom'>Submit</button>
-    </div>
-  </div>
-<br>
+  </form>
+  <br>
 
-<h6> Data Decryption: </h6>
-<div class="row">
-  <div class="col-sm-3">
-    <input type="text" class="form-control" id="label2" placeholder="numOfElectronics">
-    <small class="form-text text-muted">Label</small>
-  </div>
-  <div class="col-sm-2">
-    <button type="submit" class="btn btn-primary" id='submit_buttom'>Get</button>
-  </div>
-</div>
+  <h6> Data Decryption: </h6>
+  <form method='POST'>
+    {{ dataDecrypt.csrf_token }}
+    <div class="row">
+      <div class="col-sm-3">
+        {{ dataDecrypt.data_label_decrypt(class="form-control") }}
+        <small class="form-text text-muted">{{ dataDecrypt.data_label_decrypt.label }}</small>
+      </div>
+      <div class="col-sm-2">
+        {{ dataDecrypt.submit_decrypt(class="btn btn-primary") }}
+      </div>
+      {% if session['decrypted'] != None %}
+      <p> Decrypted value for <span style="color: rgb(0, 123, 250)"> {{ session['decrypted'][0] }} </span>: {{ session['decrypted'][1] }}</p>
+      {% endif %}
+    </div>
+  </form>
+  <br>
+
+
+  <h4> Manage This Session </h4>
+  <br>
+
+  <h6> Check Existing Labels:
+    <a href="about:blank" target="_blank">
+      <button type="submit" class="btn btn-primary" style="margin-left: 10px;">Open a New Tab</button>
+    </a>
+  </h6>
+  <br>
+
+  <h6> Delete Current Seesion and All Data:
+    <a href="about:blank" target="_blank">
+      <button type="submit" class="btn btn-danger" style="margin-left: 10px;">Delete</button>
+    </a>
+  </h6>
+  <br>
+
+  <h6> Download Current Session for Future Use:
+    <a href="about:blank" target="_blank">
+      <button type="submit" class="btn btn-success" style="margin-left: 10px;">Download</button>
+    </a>
+  </h6>
+  <br>
+
+
 
 
 

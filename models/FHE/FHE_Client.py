@@ -1,19 +1,13 @@
-#!/bin/local/python3
-
-# from cryptography.fernet import Fernet as crypto
 import math
 import base64
 import os
+import sys
 
 
 class FHE_Client:
-    def __init__(self):
-        # self.key = crypto.generate_key()  #key for q
-        self.m = int.from_bytes(os.urandom(4), byteorder="big") #16-byte modolo
-
-        self.p = int.from_bytes(os.urandom(4), byteorder="big")
-        while self.p <= self.m:
-            self.p = int.from_bytes(os.urandom(4), byteorder="big")
+    def __init__(self, size):
+        self.m = int.from_bytes(os.urandom(int(size)//4), byteorder=sys.byteorder)
+        self.p = int.from_bytes(os.urandom(int(size)//4+1), byteorder=sys.byteorder)
 
     def decrypt(self, x1p, q1, x2p, q2, p, ops):
         if ops == '+':

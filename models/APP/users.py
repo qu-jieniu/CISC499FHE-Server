@@ -3,18 +3,22 @@ import os
 import sys
 import jsonpickle
 
+from models.FHE import *
+
 
 class Session:
     def __init__(self):
-        self.secret_key = int.from_bytes(os.urandom(128), byteorder=sys.byteorder)
+        self.key_size = 0
         self.session_name = ""
+        self.set = {}
+
     def getName(self):
         return self.session_name
     def setName(self, name):
         self.session_name = name
-    def setKey(self, key_size):
-        self.secret_key = int.from_bytes(os.urandom(int(key_size)//4), byteorder=sys.byteorder)
-    def toJson(self):
+    def setKeySize(self, key_size):
+        self.key_size = key_size
+    def setServerId(self, server_id):
+        self.server_id = server_id
+    def freeze(self):
         return jsonpickle.encode(self)
-    def toDict(self):
-        return jsonpickle.decode(self)

@@ -13,15 +13,3 @@
     {{ newSessionConfig.submit(class="btn btn-primary login-button") }}
     </form>
   </div>
-
-
-  {#
-  <div id="exist_session">
-    <h5> Upload an existing session</h5>
-    <form action="{{ url_for('old_session',ip=ipform.ip.data) }}" method="POST">
-    {{ oldSession.csrf_token }}
-    {{ oldSession.file(class="file_upload") }} <br>
-    {{ oldSession.upload(class="btn btn-primary login-button") }}
-    </form>
-  </div>
-  #}
