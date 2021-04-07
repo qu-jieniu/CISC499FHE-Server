@@ -163,7 +163,12 @@ def sessionAPIv1(request):
         serializer.initial_data['user_id'] = token 
 
         if serializer.is_valid():      
-            serializer.save()
+            try:
+                serializer.save()
+            except err:
+                status_message["serviceError"] = "unexpected error adding to db"
+                return Response(status_message,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
             status_message["sessionPosted"] = serializer.validated_data["session_id"]
             return Response(status_message,status=status.HTTP_200_OK)
         else:
@@ -208,13 +213,13 @@ def operationAPIv1(request):
         status_message['authError'] = "invalid JWT"
         return Response(status_message,status=status.HTTP_401_UNAUTHORIZED)
     
+    try:
+        session_id = request.COOKIES['sessionid']
+    except KeyError:
+        status_message['sessionError'] = "session cookie not supplied"
+        return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
+    
     if request.method == 'POST':
-        try:
-            session_id = request.data['session_id']
-        except KeyError:
-            status_message['argError'] = "session_id not provided"
-            return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
-        
         try:
             equation = request.data['equation']
         except KeyError:

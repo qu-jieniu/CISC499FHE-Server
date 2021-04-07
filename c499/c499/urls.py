@@ -42,6 +42,7 @@ urlpatterns = [
     path('api/auth/signup/',auth_views.signup,name='signup'), 
     path('api/auth/login/', auth_views.login,name='login'),
     path('api/auth/logout/',auth_views.logout,name='logout'),
+    path('api/auth/del-logout/',auth_views.del_logout,name='del_logout'),
 
     # JWT 
     path('api/jwt/',auth_views.obtain_jwt_pair,name="jwt_obtain_pair"),
