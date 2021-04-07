@@ -1,0 +1,46 @@
+INTEGER
+{"index":0,"X":1,"q":1}
+
+GET INTEGERSET
+{
+"user_id":"56ed72b87ca333f02ef5eaef99296194768c5488",
+"session_id":"session_example",
+"set_id":"set_id_example"
+}
+
+GET SESSION
+{
+"user_id":"56ed72b87ca333f02ef5eaef99296194768c5488",
+"session_id":"session_example"
+}
+
+POST OPERATION
+{
+"user_id":"56ed72b87ca333f02ef5eaef99296194768c5488",
+"session_id":"session_example"
+"equation":"first_set+second_set"
+}
+
+POST INTEGERSET
+{
+    "user_id":"56ed72b87ca333f02ef5eaef99296194768c5488",
+    "session_id":"session_example",
+    "integers":[{
+        "set_id":"posted_session_set",
+        "integers":[{"index":0,"X":1,"q":1},{"index":1,"X":2,"q":2},{"index":2,"X":3,"q":3}]
+}
+
+POST SESSION
+{
+    "user_id":"56ed72b87ca333f02ef5eaef99296194768c5488",
+    "session_id":"session_example",
+    "integer_sets":[{
+        "set_id":"posted_session_set",
+        "integers":[{"index":1,"X": 1,"q":1},{"index":2,"X": 2,"q":2}]
+    	},
+	{"set_id":"posted_session_set2",
+        "integers":[{"index":1,"X": 12,"q":12},{"index":2,"X": 22,"q":22}]
+	}]
+}
+
+

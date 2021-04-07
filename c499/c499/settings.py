@@ -11,6 +11,13 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+import json
+from hashlib import sha256
+
+
+with open('/home/fully-homomorphic-encryption/c499/etc/config.json','r') as config_file:
+    config = json.load(config_file)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,13 +27,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'a-=!v#7apaipy8!pkq$rhyt0he@t%3!+irci7ytp_(t&03z(tt'
+SECRET_KEY = sha256(config['SECRET_KEY'].rstrip().encode('utf-8')).hexdigest()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
+# HTTPS Security
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+SECURE_SSL_REDIRECT = True
 
 # Application definition
 
@@ -42,7 +54,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
 
-    # own 
+    # Project 
     'c499',
     'authenticate',
     'integers',
@@ -92,8 +104,10 @@ WSGI_APPLICATION = 'c499.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'OPTIONS': {
+		'read_default_file':'/home/fully-homomorphic-encryption/c499/etc/my.cnf',
+	},
     }
 }
 
@@ -134,4 +148,5 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
+STATIC_ROOT = os.path.join(BASE_DIR,'static')
 STATIC_URL = '/static/'
