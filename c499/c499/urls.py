@@ -13,19 +13,19 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path, include
-from django.contrib.auth import views as auth_views
+
+# Django
 from django.conf.urls.static import static
 from django.conf import settings
+from django.contrib import admin
+from django.urls import path, include
 
-from django.contrib.auth import authenticate
-
+# DRF_simplejwt
 from rest_framework_simplejwt import views as jwt_views
-from rest_framework.authtoken import views
+from rest_framework.authtoken import views as token_views
 
+# Project
 from authenticate import views as auth_views
-
 from .views import statusAPIv1
 
 urlpatterns = [
@@ -38,8 +38,11 @@ urlpatterns = [
     path('polynomials/',include('polynomials.urls')),
     
     # Device Token
-    path('signup/',auth_views.signup,name='signup'), # returns device token after user creation
-    path('api/auth/',views.obtain_auth_token,name='token_obtain'), # returns device token existing user
+    path('api/auth/obtain/', token_views.obtain_auth_token,name='token_obtain'),
+    path('api/auth/signup/',auth_views.signup,name='signup'), 
+    path('api/auth/login/', auth_views.login,name='login'),
+    path('api/auth/logout/',auth_views.logout,name='logout'),
+    path('api/auth/del-logout/',auth_views.del_logout,name='del_logout'),
 
     # JWT 
     path('api/jwt/',auth_views.obtain_jwt_pair,name="jwt_obtain_pair"),
