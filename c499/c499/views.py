@@ -8,12 +8,12 @@ from rest_framework.response import Response
 # misc
 from datetime import datetime
 
-
-
 @api_view(['GET'])
 def statusAPIv1(request):
+    status_message = {}
+    
     if request.method == 'GET':
-        status_message = {}
+
         status_message["django"] = "ok"
 
         # check database

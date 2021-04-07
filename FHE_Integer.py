@@ -6,9 +6,9 @@ class FHE_Integer:
 
     def encrypt(self):
         x_prime = (self.x + self.p) % self.m
-        print("x_p in: "+str(x_prime))
+        #print("x_p in: "+str(x_prime))
         q = (self.x - x_prime + self.p) // self.m
-        print("q in: "+str(q))
+        #print("q in: "+str(q))
         return FHE_E_Integer(x_prime,q,self.p)      
 
     

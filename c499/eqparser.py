@@ -1,5 +1,5 @@
 from lark import Lark,Transformer
-from integers.models import Integer,IntegerSet,Session
+from integers.models import Integer,IntegerSet,PersistentSession
 from collections import OrderedDict
 
 def parse_eq(equation):
