@@ -19,7 +19,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 # Project
 from .serializers import AuthUserSerializer,MyTokenObtainPairSerializer
-from utils import strip_token
+from utils import *
 
 # Misc
 import base64

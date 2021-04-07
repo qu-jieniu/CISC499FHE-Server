@@ -13,7 +13,7 @@ class PersistentSession(models.Model):
 
 class IntegerSet(models.Model):
     set_id = models.CharField(max_length=40,primary_key=True)
-    session_id = models.ForeignKey(PersistentSession,on_delete=models.CASCADE,related_name="int_sets")
+    session_id = models.ForeignKey(PersistentSession,on_delete=models.CASCADE,related_name="integer_sets")
 
     def __str__(self):
         return self.set_id
