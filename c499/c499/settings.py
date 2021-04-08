@@ -16,7 +16,8 @@ import json
 from hashlib import sha256
 
 
-with open('etc\config.json','r') as config_file:
+#with open('/home/fully-homomorphic-encryption/c499/etc/config.json','r') as config_file:
+with open('etc/config.json','r') as config_file:
     config = json.load(config_file)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -32,7 +33,7 @@ SECRET_KEY = sha256(config['SECRET_KEY'].rstrip().encode('utf-8')).hexdigest()
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = [config['IP'],config['DNS']]
+ALLOWED_HOSTS = ['*']
 
 # HTTPS Security
 CSRF_COOKIE_SECURE = True
@@ -54,7 +55,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
 
-    # own 
+    # Project 
     'c499',
     'authenticate',
     'integers',
@@ -134,7 +135,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Canada/Toronto'
 
 USE_I18N = True
 
