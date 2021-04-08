@@ -27,8 +27,8 @@ class Integer(models.Model):
 
     set_id = models.ForeignKey(IntegerSet,on_delete=models.CASCADE,related_name="integers")
     index = models.IntegerField(default=0)
-    X = models.IntegerField(default=0)
-    q = models.IntegerField(default=0)
+    X = models.BinaryField()
+    q = models.BinaryField()
 
     def __str__(self):
         return "%s[%d]" % (self.set_id.set_id,self.index)
