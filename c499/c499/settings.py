@@ -18,6 +18,7 @@ from hashlib import sha256
 
 with open('etc\config.json','r') as config_file:
     config = json.load(config_file)
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -49,7 +50,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
 
-    # own 
+    # Project
     'c499',
     'authenticate',
     'integers',
@@ -94,15 +95,29 @@ TEMPLATES = [
 WSGI_APPLICATION = 'c499.wsgi.application'
 
 
-# Database
+# Database -- UNCOMMENT IF SQLITE
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
+''' 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': BASE_DIR / 'db.sqlite3',         
+        'ENGINE': 'django.db.backends.sqlite3', 
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+'''
+
+DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql', 
+            'NAME': 'fully_homomorphic_encryption_db',
+            'USER': 'fullyhomomorphicencryption',
+            'PASSWORD': 'naed7aiNg7ochieveero',
+            'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+            'PORT': '3306',
+        }
+        
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
