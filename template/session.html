@@ -1,9 +1,11 @@
 {% include 'header.html' %}
 
 <div id="session_page">
+  <div style="display:inline-block">
   <p> Session Name: <span style="color: rgb(0, 123, 250)"> {{ page }}</span> <br>
     Key Size: <span style="color: rgb(0, 123, 250)">{{ session['key_size'] }} Bits</span> ,
     Data Type: <span style="color: rgb(0, 123, 250)">{{ session['data_type'] }}</span> </p>
+  </div>
   <br>
   <h6> Data Entry: </h6>
 
@@ -82,7 +84,7 @@
       <div class="col-sm-2">
         {{ dataDecrypt.submit_decrypt(class="btn btn-primary") }}
       </div>
-      {% if session['decrypted'] != None %}
+      {% if session['decrypted'] %}
       <p> Decrypted value for <span style="color: rgb(0, 123, 250)"> {{ session['decrypted'][0] }} </span>: {{ session['decrypted'][1] }}</p>
       {% endif %}
     </div>
