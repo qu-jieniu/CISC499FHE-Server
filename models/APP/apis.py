@@ -92,10 +92,13 @@ class LiveConnection():
         r = requests.post(self.url_prefix+'/api/jwt/verify/', timeout=2.50)
         return r.text
 
-
     def post_signup(self,form_data): 
-        r = requests.post(self.url_prefix+'/api/auth/signup/', timeout=2.50)
-        return r.text
+        if self.token not None:
+            raise AttributeError
+        else:
+            r = requests.post(self.url_prefix+'/api/auth/signup/', timeout=2.50)
+            self.token = json.loads(r.content.decode('utf8').replace("'", '"'))["deviceToken"]
+            return self.token
 
     def post_login(self,form_data):
         r = requests.post(self.url_prefix+'/api/auth/login/', timeout=2.50,  files=dict(form_data)) # files is used to send form-data
