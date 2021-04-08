@@ -24,7 +24,7 @@ csrf token - django middleware requires, can acquire from any response from serv
 'POST' {site}/api/auth/del-logout/ 
 	Logout user, deletes web session and removes all data from server
 
-'POST' {site}/api/jwt/ headers={"Authorization": "Token fdhaf92fnq309f"}
+'JWT' {site}/api/jwt/ headers={"Authorization": "Token fdhaf92fnq309f"}
  	JWT token obtain - Include header with device token, returns a JWT token and a refresh token
 
 'POST' {site}/api/jwt/refresh/ body={"refresh": "example_refresh_token"}
