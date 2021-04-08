@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.contrib.sessions.models import Session as AuthSession
-# Register your models here.
-from .models import IntegerSet,Integer,PersistentSession
+from integers.models import IntegerSet,Integer,PersistentSession
 
 
 class SessionAdmin(admin.ModelAdmin):

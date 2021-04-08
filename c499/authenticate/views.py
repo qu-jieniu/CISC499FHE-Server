@@ -19,14 +19,19 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 # Project
 from .serializers import AuthUserSerializer,MyTokenObtainPairSerializer
-from utils import *
+from utils.utils import *
 
 # Misc
 import base64
 from binascii import hexlify
 from datetime import datetime
-from hashlib import sha1
+from hashlib import sha1,sha256
+
+import json
 import jwt as jwt_utils
+
+with open('etc\config.json','r') as config_file:
+    config = json.load(config_file)
 
 @api_view(['POST'])
 def signup(request):
@@ -127,7 +132,7 @@ def del_logout(request):
         try:
             device = request.headers["Authorization"]
         except KeyError:
-            status_message["authError"] = "device token not supplied"
+            status_message["authError"] = "how did you get past authentication?"
             return Response(status_message,status=status.HTTP_401_UNAUTHORIZED)
         
         try:
@@ -179,11 +184,16 @@ def obtain_jwt_pair(request):
             return Response(status_message,status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
         
         refresh = RefreshToken.for_user(user)
-
-        decodeJTW = jwt_utils.decode(str(refresh.access_token), 'a-=!v#7apaipy8!pkq$rhyt0he@t%3!+irci7ytp_(t&03z(tt', algorithms=["HS256"])
-        decodeJTW['token'] = stripped
-        encoded = jwt_utils.encode(decodeJTW, 'a-=!v#7apaipy8!pkq$rhyt0he@t%3!+irci7ytp_(t&03z(tt', algorithm="HS256")
-
+        
+        try:
+            secret_key = sha256(config['SECRET_KEY'].rstrip().encode('utf-8')).hexdigest()
+            decodeJTW = jwt_utils.decode(str(refresh.access_token), secret_key, algorithms=["HS256"])
+            decodeJTW['token'] = stripped
+            encoded = jwt_utils.encode(decodeJTW, secret_key, algorithm="HS256")
+        except err:
+            status_message["jwtError"] = str(err)
+            return Response(status_message,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
         status_message["refresh"] = str(refresh)
         status_message["access"] = str(encoded)
         return Response(status_message,status=status.HTTP_200_OK)

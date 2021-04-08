@@ -10,11 +10,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 # Project
-from eqparser import parse_eq
 from .models import Integer,IntegerSet,PersistentSession
 from .serializers import *
-from utils import *
-
+from utils.utils import *
+from utils.eqparser import *
 # Misc
 import base64
 from binascii import hexlify
