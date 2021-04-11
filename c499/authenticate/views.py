@@ -52,7 +52,7 @@ def signup(request):
             except err:
                 status_message["serviceError"] = err
                 return Response(status_message,status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
-            status_message["deviceToken"] = device.key
+            status_message["token"] = device.key
             return Response(status_message,status=status.HTTP_200_OK)
         else:
             status_message["formError"] = form.errors 
@@ -84,7 +84,7 @@ def login(request):
                 status_message["databaseError"] = err
                 return Response(status_message,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
-            status_message["deviceToken"] = device.key
+            status_message["token"] = device.key
             return Response(status_message,status=status.HTTP_200_OK)
         else:
             status_message["authError"] = "bad login"
@@ -193,7 +193,7 @@ def obtain_jwt_pair(request):
         except err:
             status_message["jwtError"] = str(err)
             return Response(status_message,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
+
         status_message["refresh"] = str(refresh)
         status_message["access"] = str(encoded)
         return Response(status_message,status=status.HTTP_200_OK)

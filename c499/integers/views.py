@@ -18,25 +18,29 @@ from utils.eqparser import *
 import base64
 from binascii import hexlify
 from datetime import datetime
-from hashlib import sha1
+from hashlib import sha1,sha256
 import jwt as jwt_utils
+import json
 
-server_secret = "cisc499_fully_homomorphic_encryption"
+with open('etc\config.json','r') as config_file:
+    config = json.load(config_file)
+
 
 @api_view(['GET','POST','DELETE'])
-@permission_classes([IsAuthenticated])
 def setAPIv1(request):
     status_message = {}
     
     # get JWT and obtain corresponding device token object
     try:
         jwt = request.headers["Authorization"]
-        jwt = strip_bearer(jwt)
-        decode_jwt = jwt.decode(jwt, 'a-=!v#7apaipy8!pkq$rhyt0he@t%3!+irci7ytp_(t&03z(tt', algorithms=["HS256"])
-        token = Token.objects.get(key=decode_jwt['token'])
     except KeyError:
         status_message['authError'] = "JWT not supplied"
-        return Response(status_message,status=status.HTTP_401_UNAUTHORIZED)    
+        return Response(status_message,status=status.HTTP_401_UNAUTHORIZED)
+
+    try:    
+        jwt = strip_bearer(jwt)
+        secret_key = sha256(config['SECRET_KEY'].rstrip().encode('utf-8')).hexdigest()
+        decode_jwt = jwt_utils.decode(jwt, secret_key, algorithms=["HS256"])
     except ValueError:
         status_message['authError'] = "device token supplied, need JWT"
         return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
@@ -44,6 +48,8 @@ def setAPIv1(request):
         status_message['authError'] = "invalid JWT"
         return Response(status_message,status=status.HTTP_401_UNAUTHORIZED)
     
+    #token = Token.objects.get(key=decode_jwt['token'])   
+    return Response(list(decode_jwt.keys()))
     # get session_id from cookie
     try:
         session_id = request.COOKIES['sessionid']
