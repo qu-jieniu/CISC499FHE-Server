@@ -41,6 +41,7 @@ def setAPIv1(request):
         jwt = strip_bearer(jwt)
         secret_key = sha256(config['SECRET_KEY'].rstrip().encode('utf-8')).hexdigest()
         decode_jwt = jwt_utils.decode(jwt, secret_key, algorithms=["HS256"])
+        token = Token.objects.get(key=decode_jwt['token'])
     except ValueError:
         status_message['authError'] = "device token supplied, need JWT"
         return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
@@ -48,8 +49,6 @@ def setAPIv1(request):
         status_message['authError'] = "invalid JWT"
         return Response(status_message,status=status.HTTP_401_UNAUTHORIZED)
     
-    #token = Token.objects.get(key=decode_jwt['token'])   
-    return Response(list(decode_jwt.keys()))
     # get session_id from cookie
     try:
         session_id = request.COOKIES['sessionid']

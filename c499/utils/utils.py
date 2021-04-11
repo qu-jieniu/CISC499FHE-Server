@@ -1,8 +1,13 @@
 from binascii import hexlify
 from datetime import datetime
+import json
+
+with open('etc\config.json','r') as config_file:
+    config = json.load(config_file)
 
 def create_set_id():
-    set_id = hash(str(datetime.utcnow())+server_secret)
+    server_secret = sha256(config['SECRET_KEY'].rstrip().encode('utf-8')).hexdigest()
+    set_id = hash(str(datetime.utcnow()))
     set_utf = str(set_id).encode("utf-8")
     return hexlify(set_utf).decode('utf-8')
 
