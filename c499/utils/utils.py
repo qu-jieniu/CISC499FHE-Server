@@ -1,5 +1,6 @@
 from binascii import hexlify
 from datetime import datetime
+from hashlib import sha256
 import json
 from hashlib import sha256
 
@@ -17,10 +18,9 @@ def strip_token(token_string):
     if split[0] == "Bearer":
         raise ValueError
     return split[1]
-        
+
 def strip_bearer(jwt_string):
     split =  jwt_string.split()
     if split[0] == "Token":
         raise ValueError
     return split[1]
-        

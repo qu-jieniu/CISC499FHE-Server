@@ -1,11 +1,11 @@
-from rest_framework import serializers 
+from rest_framework import serializers
 from .models import Integer,IntegerSet,PersistentSession
 from django.core import serializers as dserializers
 
 
 def set_to_dict(set_model):
     ints_data = Integer.objects.filter(set_id = set_model)
-    
+
     int_data_list = []
 
     for int_data in ints_data:
@@ -16,7 +16,7 @@ def set_to_dict(set_model):
         int_data_list.append(int_values)
 
     serialized = {}
-    
+
     serialized['set_id'] = set_model.set_id
     serialized['integers'] = int_data_list
 
@@ -24,21 +24,21 @@ def set_to_dict(set_model):
 
 def session_to_dict(session_model):
     sets_data = IntegerSet.objects.filter(session_id = session_model)
-    
+
     set_data_list = []
 
     for set_data in sets_data:
        set_data_list.append(set_to_dict(set_data))
 
     serialized = {}
-    
+
     serialized['session_id'] = session_model.session_id
     serialized['integer_sets'] = set_data_list
 
     return serialized
 
 class IntegerSerializer(serializers.ModelSerializer):
-    index = serializers.IntegerField(required=True,min_value=0)    
+    index = serializers.IntegerField(required=True,min_value=0)
     X = serializers.IntegerField(required=True)
     q = serializers.IntegerField(required=True)
     class Meta:
@@ -64,7 +64,7 @@ class PersistentSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = PersistentSession
         fields = ['user_id','session_id','integer_sets']
-    session_id = serializers.CharField(required=True,allow_blank=False)  
+    session_id = serializers.CharField(required=True,allow_blank=False)
     integer_sets = IntegerSetSerializer(many = True)
 
     def create(self,validated_data):
