@@ -1,4 +1,6 @@
-**/__pycache__
+/__pycache__/
+
+******/__pycache__/
 /FHE_venv
 /.DS_Store
 /junkcode

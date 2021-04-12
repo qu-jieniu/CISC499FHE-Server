@@ -30,7 +30,7 @@ from hashlib import sha1,sha256
 import json
 import jwt as jwt_utils
 
-with open('etc\config.json','r') as config_file:
+with open('etc/config.json','r') as config_file:
     config = json.load(config_file)
 
 @api_view(['POST'])

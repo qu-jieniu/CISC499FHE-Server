@@ -16,7 +16,7 @@ import json
 from hashlib import sha256
 from datetime import timedelta
 
-with open('etc\config.json','r') as config_file:
+with open('etc/config.json','r') as config_file:
     config = json.load(config_file)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -32,7 +32,7 @@ SECRET_KEY = sha256(config['SECRET_KEY'].rstrip().encode('utf-8')).hexdigest()
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 SECURE_SSL_REDIRECT = False
 
@@ -98,10 +98,10 @@ WSGI_APPLICATION = 'c499.wsgi.application'
 # Database -- UNCOMMENT IF SQLITE
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-''' 
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', 
+        'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
@@ -109,16 +109,16 @@ DATABASES = {
 
 DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.mysql', 
+            'ENGINE': 'django.db.backends.mysql',
             'NAME': 'fully_homomorphic_encryption_db',
             'USER': 'fullyhomomorphicencryption',
             'PASSWORD': 'naed7aiNg7ochieveero',
             'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
             'PORT': '3306',
         }
-        
-    }
 
+    }
+'''
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 

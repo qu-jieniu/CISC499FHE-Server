@@ -1,8 +1,9 @@
 from binascii import hexlify
 from datetime import datetime
+from hashlib import sha256
 import json
 
-with open('etc\config.json','r') as config_file:
+with open('etc/config.json','r') as config_file:
     config = json.load(config_file)
 
 def create_set_id():
@@ -16,10 +17,9 @@ def strip_token(token_string):
     if split[0] == "Bearer":
         raise ValueError
     return split[1]
-        
+
 def strip_bearer(jwt_string):
     split =  jwt_string.split()
     if split[0] == "Token":
         raise ValueError
     return split[1]
-        

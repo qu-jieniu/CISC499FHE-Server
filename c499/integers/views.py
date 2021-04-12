@@ -1,8 +1,8 @@
-# Django 
+# Django
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 
-# DRF 
+# DRF
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
@@ -21,15 +21,16 @@ from datetime import datetime
 from hashlib import sha1,sha256
 import jwt as jwt_utils
 import json
+from copy import deepcopy
 
-with open('etc\config.json','r') as config_file:
+with open('etc/config.json','r') as config_file:
     config = json.load(config_file)
 
 
 @api_view(['GET','POST','DELETE'])
 def setAPIv1(request):
     status_message = {}
-    
+
     # get JWT and obtain corresponding device token object
     try:
         jwt = request.headers["Authorization"]
@@ -37,7 +38,7 @@ def setAPIv1(request):
         status_message['authError'] = "JWT not supplied"
         return Response(status_message,status=status.HTTP_401_UNAUTHORIZED)
 
-    try:    
+    try:
         jwt = strip_bearer(jwt)
         secret_key = sha256(config['SECRET_KEY'].rstrip().encode('utf-8')).hexdigest()
         decode_jwt = jwt_utils.decode(jwt, secret_key, algorithms=["HS256"])
@@ -48,14 +49,14 @@ def setAPIv1(request):
     except Token.DoesNotExist:
         status_message['authError'] = "invalid JWT"
         return Response(status_message,status=status.HTTP_401_UNAUTHORIZED)
-    
+
     # get session_id from cookie
     try:
         session_id = request.COOKIES['sessionid']
     except KeyError:
         status_message['sessionError'] = "session cookie not supplied"
         return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
-    
+
     if request.method == 'GET':
         # query existence of session, if PersistentSession doesn't exist set doesn't either
         try:
@@ -67,17 +68,17 @@ def setAPIv1(request):
         except KeyError:
             status_message['argError'] = "set_id not supplied"
             return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
-        
+
         queried = IntegerSet.objects.filter(set_id=working_set)
-        
+
         # Check if queried set has any values (if set exists in DB)
         if not queried:
             status_message["invalidArgument"] = "set_id not found"
-            return Response(status_message,status=status.HTTP_400_BAD_REQUEST) 
-        else:     
+            return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
+        else:
             set_dict = set_to_dict(queried)
             return Response(set_dict,status=status.HTTP_200_OK)
-        
+
     elif request.method == 'POST':
         try:
             session = PersistentSession.objects.get(session_id=session_id)
@@ -85,18 +86,19 @@ def setAPIv1(request):
             session = PersistentSession.objects.create(user_id=token,session_id =session_id)
             status_message['sessionCreated'] = session_id
 
-        serializer = IntegerSetSerializer(data = request.data) 
+        serializer = IntegerSetSerializer(data = request.data)
+        serializer = deepcopy(serializer)
         serializer.initial_data['session_id'] = session
-        serializer.initial_data['set_id']=create_set_id() 
-        
-        if serializer.is_valid():        
+        serializer.initial_data['set_id']=create_set_id()
+
+        if serializer.is_valid():
             serializer.save()
-            status_message['setCreated'] = serializer.validated_data['set_id'] 
+            status_message['set_id'] = serializer.validated_data['set_id']
             return Response(status_message,status=status.HTTP_200_OK)
         else:
             status_message["serializerError"] = serializer.errors
             return Response(status_message, status=status.HTTP_400_BAD_REQUEST)
-        
+
     elif request.method == 'DELETE':
         # If PersistentSession DNE, set DNE
         try:
@@ -117,8 +119,8 @@ def setAPIv1(request):
         # check if set exists in database
         if not queried:
             status_message["invalidArgument"] = "set_id not found"
-            return Response(status_message,status=status.HTTP_400_BAD_REQUEST) 
-        else:     
+            return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
+        else:
             queried.delete()
             return Response(set_dict,status=status.HTTP_200_OK)
     else:
@@ -128,7 +130,7 @@ def setAPIv1(request):
 @permission_classes([IsAuthenticated])
 def sessionAPIv1(request):
     status_message = {}
-    
+
     try:
         jwt = request.headers["Authorization"]
         jwt = strip_bearer(jwt)
@@ -136,14 +138,14 @@ def sessionAPIv1(request):
         token = Token.objects.get(key=decode_jwt['token'])
     except KeyError:
         status_message['authError'] = "JWT not supplied"
-        return Response(status_message,status=status.HTTP_401_UNAUTHORIZED)    
+        return Response(status_message,status=status.HTTP_401_UNAUTHORIZED)
     except ValueError:
         status_message['authError'] = "device token supplied, need JWT"
         return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
     except Token.DoesNotExist:
         status_message['authError'] = "invalid JWT"
         return Response(status_message,status=status.HTTP_401_UNAUTHORIZED)
-    
+
     if request.method == 'GET':
         # get session_id from header
         try:
@@ -157,16 +159,16 @@ def sessionAPIv1(request):
         # check if PersistentSession exists in database
         if not queried:
             status_message["sessionError"] = "session_id does not exist"
-            return Response(status_message,status=status.HTTP_400_BAD_REQUEST) 
-        else:     
+            return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
+        else:
             session_dict = session_to_dict(queried)
             return Response(session_dict,status=status.HTTP_200_OK)
 
-    elif request.method == 'POST': 
+    elif request.method == 'POST':
         serializer = PersistentSessionSerializer(data = request.data)
-        serializer.initial_data['user_id'] = token 
+        serializer.initial_data['user_id'] = token
 
-        if serializer.is_valid():      
+        if serializer.is_valid():
             try:
                 serializer.save()
             except err:
@@ -178,7 +180,7 @@ def sessionAPIv1(request):
         else:
             status_message["serializerError"] = serializer.errors
             return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
-        
+
     elif request.method == 'DELETE':
         try:
             working_session = request.data['session_id']
@@ -193,7 +195,7 @@ def sessionAPIv1(request):
             return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
         else:
             queried.delete()
-            status_message[working_session] = "deleted" 
+            status_message[working_session] = "deleted"
             return Response(status_message,status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -209,20 +211,20 @@ def operationAPIv1(request):
         token = Token.objects.get(key=decode_jwt['token'])
     except KeyError:
         status_message['authError'] = "JWT not supplied"
-        return Response(status_message,status=status.HTTP_401_UNAUTHORIZED)    
+        return Response(status_message,status=status.HTTP_401_UNAUTHORIZED)
     except ValueError:
         status_message['authError'] = "device token supplied, need JWT"
         return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
     except Token.DoesNotExist:
         status_message['authError'] = "invalid JWT"
         return Response(status_message,status=status.HTTP_401_UNAUTHORIZED)
-    
+
     try:
         session_id = request.COOKIES['sessionid']
     except KeyError:
         status_message['sessionError'] = "session cookie not supplied"
         return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
-    
+
     if request.method == 'POST':
         try:
             equation = request.data['equation']
@@ -241,7 +243,7 @@ def operationAPIv1(request):
         except PersistentSession.DoesNotExist:
             session = PersistentSession.objects.create(session_id=session_id,user_id=token)
             status_message['sessionCreated'] = session_id
-            
+
         set_obj = IntegerSet.objects.create(set_id=create_set_id(),session_id=session)
 
         index = 0
@@ -252,7 +254,3 @@ def operationAPIv1(request):
         return Response(status_message,status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-
-
-
