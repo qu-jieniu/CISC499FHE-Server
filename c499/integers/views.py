@@ -94,9 +94,9 @@ def setAPIv1(request):
         
         
         if serializer.is_valid():        
+            status_message['set_id'] = serializer.validated_data['set_id'] 
             serializer.validated_data['session_id']=session
             serializer.save()
-            status_message['set_id'] = serializer.validated_data['set_id'] 
             return Response(status_message,status=status.HTTP_200_OK)
         else:
             status_message["serializerError"] = serializer.errors
