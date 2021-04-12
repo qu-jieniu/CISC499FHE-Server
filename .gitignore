@@ -1,11 +1,8 @@
 /__pycache__/
 
-******/__pycache__/
-/FHE_venv
+/FHE_Venv
 /.DS_Store
-/junkcode
 /init_stage.md
-/.gitignore
 /venv
 
 venv/
