@@ -9,7 +9,7 @@ with open('etc\config.json','r') as config_file:
 
 def create_set_id():
     server_secret = sha256(config['SECRET_KEY'].rstrip().encode('utf-8')).hexdigest()
-    set_id = hash(str(datetime.utcnow()))
+    set_id = hash(str(datetime.utcnow())+str(server_secret))
     set_utf = str(set_id).encode("utf-8")
     return hexlify(set_utf).decode('utf-8')
 
