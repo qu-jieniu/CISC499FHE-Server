@@ -26,3 +26,11 @@ def statusAPIv1(request):
             return Response(status_message, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
     else:
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+'''
+# create PersistentSession when BaseSession is created
+@receiver(post_save,sender=SessionBase)
+def create_auth_token(sender,instance=None,created=False,**kwargs):
+    if created:
+        PersistentSession.objects.create(session_id=instance.get('sessionid'),user_id=)
+'''

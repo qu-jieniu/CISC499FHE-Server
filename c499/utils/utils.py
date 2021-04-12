@@ -1,6 +1,7 @@
 from binascii import hexlify
 from datetime import datetime
 import json
+from hashlib import sha256
 
 with open('etc\config.json','r') as config_file:
     config = json.load(config_file)

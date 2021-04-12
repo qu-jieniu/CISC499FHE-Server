@@ -21,6 +21,7 @@ from datetime import datetime
 from hashlib import sha1,sha256
 import jwt as jwt_utils
 import json
+import copy
 
 with open('etc\config.json','r') as config_file:
     config = json.load(config_file)
@@ -79,19 +80,23 @@ def setAPIv1(request):
             return Response(set_dict,status=status.HTTP_200_OK)
         
     elif request.method == 'POST':
+        # load PersistentSession, if DNE for current session this is first post, create PersistentSession
         try:
             session = PersistentSession.objects.get(session_id=session_id)
         except PersistentSession.DoesNotExist:
             session = PersistentSession.objects.create(user_id=token,session_id =session_id)
-            status_message['sessionCreated'] = session_id
+            status_message['session_id'] = session_id
 
+        
+        request.data['set_id']=create_set_id()
+        
         serializer = IntegerSetSerializer(data = request.data) 
-        serializer.initial_data['session_id'] = session
-        serializer.initial_data['set_id']=create_set_id() 
+        
         
         if serializer.is_valid():        
+            serializer.validated_data['session_id']=session
             serializer.save()
-            status_message['setCreated'] = serializer.validated_data['set_id'] 
+            status_message['set_id'] = serializer.validated_data['set_id'] 
             return Response(status_message,status=status.HTTP_200_OK)
         else:
             status_message["serializerError"] = serializer.errors
