@@ -16,10 +16,12 @@ def parse_eq(equation):
     | product "*" atom -> mul
 
     
-    ?atom : NAME -> set_id
+    ?atom : ALPHA -> set_id
     | "-" atom -> neg
     | "(" sum ")" -> bracket
     
+    ALPHA: /[a-zA-Z0-9_]+/
+
     %import common.ESCAPED_STRING
     %import common.CNAME -> NAME
     %import common.WS_INLINE

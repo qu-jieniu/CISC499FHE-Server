@@ -211,6 +211,7 @@ def sessionAPIv1(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def operationAPIv1(request):
+    status_message = {}
     try:
         jwt = request.headers["Authorization"]
         jwt = strip_bearer(jwt)
