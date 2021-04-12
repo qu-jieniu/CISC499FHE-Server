@@ -63,13 +63,13 @@ def setAPIv1(request):
             session = PersistentSession.objects.get(session_id=session_id)
             working_set = request.data['set_id']
         except PersistentSession.DoesNotExist:
-            status_message['sessionError'] = "invalid session_id"
+            status_message['sessionError'] = "no current session"
             return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
         except KeyError:
             status_message['argError'] = "set_id not supplied"
             return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
 
-        queried = IntegerSet.objects.filter(set_id=working_set)
+        queried = IntegerSet.objects.get(set_id=working_set)
 
         # Check if queried set has any values (if set exists in DB)
         if not queried:
