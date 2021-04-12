@@ -21,7 +21,7 @@ def statusAPIv1(request):
             _ = len(Token.objects.all()) # forces evaluation
             status_message["database"] = "ok"
             return Response(status_message, status=status.HTTP_200_OK)
-        except err:
+        except Exception as err:
             status_message["database"] = "error: " + str(err)
             return Response(status_message, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
     else:

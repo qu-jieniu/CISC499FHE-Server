@@ -1,7 +1,7 @@
 # Django
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
-
+from django.db import IntegrityError
 # DRF
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -137,7 +137,8 @@ def sessionAPIv1(request):
     try:
         jwt = request.headers["Authorization"]
         jwt = strip_bearer(jwt)
-        decode_jwt = jwt_utils.decode(jwt, 'a-=!v#7apaipy8!pkq$rhyt0he@t%3!+irci7ytp_(t&03z(tt', algorithms=["HS256"])
+        secret_key = sha256(config['SECRET_KEY'].rstrip().encode('utf-8')).hexdigest()
+        decode_jwt = jwt_utils.decode(jwt, secret_key, algorithms=["HS256"])
         token = Token.objects.get(key=decode_jwt['token'])
     except KeyError:
         status_message['authError'] = "JWT not supplied"
@@ -150,7 +151,7 @@ def sessionAPIv1(request):
         return Response(status_message,status=status.HTTP_401_UNAUTHORIZED)
 
     if request.method == 'GET':
-        # get session_id from header
+        # get session_id from message body
         try:
             working_session = request.data['session_id']
         except KeyError:
@@ -174,11 +175,14 @@ def sessionAPIv1(request):
         if serializer.is_valid():
             try:
                 serializer.save()
-            except err:
-                status_message["serviceError"] = "unexpected error adding to db"
+            except IntegrityError:
+                status_message["bad request"] = "session or corresponding set(s) already exist in database"
+                return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
+            except Exception as err:
+                status_message["serviceError"] = "error: " + str(err)
                 return Response(status_message,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            status_message["sessionPosted"] = serializer.validated_data["session_id"]
+            status_message["session_id"] = serializer.validated_data["session_id"]
             return Response(status_message,status=status.HTTP_200_OK)
         else:
             status_message["serializerError"] = serializer.errors
@@ -210,7 +214,8 @@ def operationAPIv1(request):
     try:
         jwt = request.headers["Authorization"]
         jwt = strip_bearer(jwt)
-        decode_jwt = jwt.decode(jwt, 'a-=!v#7apaipy8!pkq$rhyt0he@t%3!+irci7ytp_(t&03z(tt', algorithms=["HS256"])
+        secret_key = sha256(config['SECRET_KEY'].rstrip().encode('utf-8')).hexdigest()
+        decode_jwt = jwt_utils.decode(jwt, secret_key, algorithms=["HS256"])
         token = Token.objects.get(key=decode_jwt['token'])
     except KeyError:
         status_message['authError'] = "JWT not supplied"
@@ -237,7 +242,7 @@ def operationAPIv1(request):
 
         try:
             parsed = parse_eq(str(equation))
-        except err:
+        except Exception as err:
             status_message['operationError'] = str(err)
             return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
 
