@@ -30,25 +30,26 @@ with open('etc\config.json','r') as config_file:
 @api_view(['GET','POST','DELETE'])
 def setAPIv1(request):
     status_message = {}
-
+    
     # get JWT and obtain corresponding device token object
     try:
         jwt = request.headers["Authorization"]
-    except KeyError:
-        status_message['authError'] = "JWT not supplied"
-        return Response(status_message,status=status.HTTP_401_UNAUTHORIZED)
-
-    try:
         jwt = strip_bearer(jwt)
         secret_key = sha256(config['SECRET_KEY'].rstrip().encode('utf-8')).hexdigest()
         decode_jwt = jwt_utils.decode(jwt, secret_key, algorithms=["HS256"])
         token = Token.objects.get(key=decode_jwt['token'])
-    except ValueError:
-        status_message['authError'] = "device token supplied, need JWT"
-        return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
-    except Token.DoesNotExist:
-        status_message['authError'] = "invalid JWT"
+    except KeyError:
+        status_message['auth_error'] = "JWT not supplied"
         return Response(status_message,status=status.HTTP_401_UNAUTHORIZED)
+    except ValueError:
+        status_message['auth_error'] = "device token supplied, need JWT"
+        return Response(status_message,status=status.HTTP_401_UNAUTHORIZED)
+    except Token.DoesNotExist:
+        status_message['auth_error'] = "invalid JWT"
+        return Response(status_message,status=status.HTTP_401_UNAUTHORIZED)
+    except Exception as err:
+        status_message['unknown_error'] = str(err)
+        return Response(status_message,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # get session_id from cookie
     try:
