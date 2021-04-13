@@ -25,7 +25,7 @@ print("plus should be: " + str(-15125124131+124125532325))
 print("x plus: "+ str(x12_plus.x))
 '''
 
-
+'''
 x1 = FHE_Integer(int1, p,m)
 x2 = FHE_Integer(int2, p,m)
 x1_e = x1.encrypt()
@@ -37,6 +37,21 @@ x12_mult = x12_p_mult.decrypt(m)
 
 print(int1*int2)
 print("x mult: "+ str(x12_mult.x))
+'''
+
+x1 = FHE_Integer(int1, p,m+7)
+x2 = FHE_Integer(int2, p,m)
+x1_e = x1.encrypt()
+x2_e = x2.encrypt()
+
+x12_p_mult = mult_e_ints2(x1_e,x2_e,m+7,m)
+
+
+
+print(int1*int2)
+print("x mult: "+ str(x12_p_mult.x))
+
+
 
 
 '''
