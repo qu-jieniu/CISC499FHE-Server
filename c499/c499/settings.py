@@ -9,12 +9,11 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-
-from pathlib import Path
-import os
-import json
-from hashlib import sha256
 from datetime import timedelta
+from hashlib import sha256
+import json
+import os
+from pathlib import Path
 
 with open('etc\config.json','r') as config_file:
     config = json.load(config_file)
@@ -34,6 +33,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
+# ensure django does not forward to https
+# this is true in production with proper configuration
 SECURE_SSL_REDIRECT = False
 
 # Application definition
@@ -98,7 +99,9 @@ WSGI_APPLICATION = 'c499.wsgi.application'
 # Database -- UNCOMMENT IF SQLITE
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-
+# uncomment this block should you need sqlite
+# binary strings are supported
+'''
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -107,18 +110,19 @@ DATABASES = {
 }
 '''
 
+# mysql database 
 DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'fully_homomorphic_encryption_db',
-            'USER': 'fullyhomomorphicencryption',
-            'PASSWORD': 'naed7aiNg7ochieveero',
-            'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
-            'PORT': '3306',
-        }
-
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'fully_homomorphic_encryption_db',
+        'USER': 'fullyhomomorphicencryption',
+        'PASSWORD': 'naed7aiNg7ochieveero',
+        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+        'PORT': '3306',
     }
-'''
+
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
@@ -157,6 +161,33 @@ USE_TZ = True
 
 #STATIC_ROOT = os.path.join(BASE_DIR,'static')
 STATIC_URL = '/static/'
+
+# custom logger to output to debug.log
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '{levelname} {asctime} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': 'etc/debug.log',
+            'formatter':'simple'
+        },
+    },
+    'loggers': {
+        'c499.logger': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+    },
+}
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),

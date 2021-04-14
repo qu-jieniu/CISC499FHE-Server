@@ -1,6 +1,7 @@
 from lark import Lark,Transformer
 from integers.models import Integer,IntegerSet,PersistentSession
 from collections import OrderedDict
+import base64
 
 def parse_eq(equation):
     
@@ -17,7 +18,6 @@ def parse_eq(equation):
 
     
     ?atom : ALPHA -> set_id
-    | "-" atom -> neg
     | "(" sum ")" 
     
     ALPHA: /[a-zA-Z0-9_]+/
@@ -56,9 +56,6 @@ class EqTransformer(Transformer):
             sum_set[str(i)] = first[i]+second[i] 
 
         return list(sum_set.values())
-    
-    def neg(self, atom):
-        return [elem*-1 for elem in atom]
 
     def sub(self,set_list):
         first = set_list[0]
@@ -109,6 +106,7 @@ class EqTransformer(Transformer):
         set_list = OrderedDict()
 
         for i in ints:
-            set_list[str(i.index)] = i.X
+            unbase = base64.b64decode(i.X)
+            set_list[str(i.index)] = int.from_bytes(unbase,byteorder='big')
 
         return list(set_list.values())

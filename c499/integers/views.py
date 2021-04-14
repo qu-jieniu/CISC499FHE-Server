@@ -1,7 +1,6 @@
 # Django
-from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
 from django.db import IntegrityError
+
 # DRF
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -14,14 +13,15 @@ from .models import Integer,IntegerSet,PersistentSession
 from .serializers import *
 from utils.utils import *
 from utils.eqparser import *
+
 # Misc
 import base64
-from binascii import hexlify
+import copy
 from datetime import datetime
 from hashlib import sha1,sha256
 import jwt as jwt_utils
 import json
-import copy
+import math
 
 with open('etc\config.json','r') as config_file:
     config = json.load(config_file)
@@ -180,24 +180,27 @@ def sessionAPIv1(request):
             return Response(session_dict,status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
-        serializer = PersistentSessionSerializer(data = request.data)
-        serializer.initial_data['user_id'] = token
+        # create persistent session to store data
+        try:
+            session_id = request.data['session_id']
+            session = PersistentSession.objects.create(user_id=token,session_id=session_id)
+        except:
+            return "exception handle"
+        
+        try:
+            integer_sets = request.data['integer_sets']
+        except KeyError:
+            return "bad request"
 
-        if serializer.is_valid():
-            try:
-                serializer.save()
-            except IntegrityError:
-                status_message["bad request"] = "session or corresponding set(s) already exist in database"
-                return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
-            except Exception as err:
-                status_message["serviceError"] = "error: " + str(err)
-                return Response(status_message,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            for int_set in integer_sets:
+                currSet = IntegerSet.objects.create(session_id=session,set_id=int_set['set_id'])
+                for int_data in int_set['integers']:
+                    deserializeBinaryInt(int_data,currSet)
+        except:
+            return "bad request"
 
-            status_message["session_id"] = serializer.validated_data["session_id"]
-            return Response(status_message,status=status.HTTP_200_OK)
-        else:
-            status_message["serializerError"] = serializer.errors
-            return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
+        return Response("dope")
 
     elif request.method == 'DELETE':
         try:
@@ -255,7 +258,7 @@ def operationAPIv1(request):
         try:
             parsed = parse_eq(str(equation))
         except Exception as err:
-            status_message['operationError'] = str(err)
+            status_message['operationError'] = str(err) + "--" + str(type(err))
             return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
 
         try:
@@ -268,7 +271,9 @@ def operationAPIv1(request):
 
         index = 0
         for int_val in parsed:
-            Integer.objects.create(set_id=set_obj,index=index,X=int_val)
+            bytes_needed = math.ceil(int_val.bit_length()/8)
+            encoded = base64.b64encode(int_val.to_bytes(bytes_needed,byteorder='big'))
+            Integer.objects.create(set_id=set_obj,index=index,X=encoded)
             index += 1
         status_message['setCreated'] = set_obj.set_id
         return Response(status_message,status=status.HTTP_200_OK)

@@ -1,19 +1,22 @@
 import base64
-my_int = 19030341030420934240394203
+import math
 
-print(my_int)
+int1 = 17
+int2 = 15
+
+needed1 = math.ceil(int1.bit_length()/8)
+base1 = base64.b64encode(int1.to_bytes(length=needed1,byteorder='big'))
+print("base64 encoding int1: "+str(base1))
+
+needed2 = math.ceil(int2.bit_length()/8)
+base2 = base64.b64encode(int2.to_bytes(length=needed2,byteorder='big'))
+print("base64 encoding int2: "+str(base2))  
 
 
-byted=my_int.to_bytes(32,byteorder='big')
+# 2d32303131323935323737323736303437383634
+# 2d33343335333533383634323937393438333238
 
-print(byted)
-print(byted.hex())
+result =  base64.b64decode("AeA=")
+print(int.from_bytes(result,byteorder='big'))
 
-print(int(byted.hex(),16))
-
-print(int.from_bytes(byted,byteorder='big'))
-
-base =base64.b64encode(byted)
-print(base)
-unbase = base64.b64decode(base)
-print(int.from_bytes(unbase,byteorder='big'))
+# sum 34393937383637373938303531343437373231

@@ -1,9 +1,17 @@
-from rest_framework import serializers
-from .models import Integer,IntegerSet,PersistentSession
+# Django
 from django.core import serializers as dserializers
+
+# DRF
+from rest_framework import serializers
+
+# Project
+from .models import Integer,IntegerSet,PersistentSession
 from utils.utils import *
+
+# Misc
 import base64
 
+# serialize to dict which JSON can automatically handle
 def set_to_dict(set_model):
     ints_data = Integer.objects.filter(set_id = set_model)
 
@@ -12,8 +20,8 @@ def set_to_dict(set_model):
     for int_data in ints_data:
         int_values = {}
         int_values["index"] = int_data.index
-        int_values["X"] = base64.b64encode(int_data.X)
-        int_values["q"] = base64.b64encode(int_data.q)
+        int_values["X"] = int_data.X
+        int_values["q"] = int_data.q
         int_data_list.append(int_values)
 
     serialized = {}
@@ -23,6 +31,8 @@ def set_to_dict(set_model):
 
     return serialized
 
+
+# serialize to dict which JSON can handle
 def session_to_dict(session_model):
     sets_data = IntegerSet.objects.filter(session_id = session_model)
 
@@ -40,51 +50,13 @@ def session_to_dict(session_model):
 
 
 def deserializeBinaryInt(data,set_instance):
-    # make integer instance
-    try:
-        Integer.objects.create(set_id=set_instance,index=data['index'],X=base64.b64decode(data['X']),q=base64.b64decode(data['q']))
-    except BaseException as err:
-        print(err)
-        return False
-    return True
+    # create integer instance 
+    return Integer.objects.create(set_id=set_instance,index=int(data['index']),X=bytes(data['X'],'raw_unicode_escape'),q=bytes(data['q'],'raw_unicode_escape'))
+   
+
+def deserializeSet(data,session_instance): 
+    # create set instance 
+    return IntegerSet.objects.create(set_id=data['set_id'],session_id=set_instance)
 
 
-class IntegerSerializer(serializers.ModelSerializer):
-    index = serializers.IntegerField(required=True,min_value=0)
-    X = serializers.IntegerField(required=True,min_value=0)
-    q = serializers.IntegerField(required=True,min_value=0)
-    class Meta:
-        model = Integer
-        fields = ['index','X','q']
 
-class IntegerSetSerializer(serializers.ModelSerializer):
-    session_id = serializers.RelatedField(source='sessions',read_only=True)
-    set_id =  serializers.CharField(required=False,allow_blank=False)  
-    integers =  IntegerSerializer(many=True)
-
-    def create(self, validated_data):
-        integers_data = validated_data.pop('integers')
-        int_set = IntegerSet.objects.create(set_id=validated_data.pop('set_id'),session_id=validated_data.pop('session_id'))
-        for integer_data in integers_data:
-            Integer.objects.create(set_id=int_set,**integer_data)
-        return int_set
-    class Meta:
-        model = IntegerSet
-        fields = '__all__'
-
-class PersistentSessionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PersistentSession
-        fields = ['user_id','session_id','integer_sets']
-    session_id = serializers.CharField(required=True,allow_blank=False)
-    integer_sets = IntegerSetSerializer(many = True)
-
-    def create(self,validated_data):
-        sets_data = validated_data.pop('integer_sets')
-        session = PersistentSession.objects.create(**validated_data)
-        for set_data in sets_data:
-            int_set = IntegerSet.objects.create(session_id=session, set_id=set_data['set_id'])
-            ints_data = set_data.pop('integers')
-            for int_data in ints_data:
-                Integer.objects.create(set_id=int_set,**int_data)    
-        return session    

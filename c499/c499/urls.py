@@ -20,9 +20,9 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
 
-# DRF_simplejwt
-from rest_framework_simplejwt import views as jwt_views
+# DRF
 from rest_framework.authtoken import views as token_views
+from rest_framework_simplejwt import views as jwt_views
 
 # Project
 from authenticate import views as auth_views
@@ -46,6 +46,5 @@ urlpatterns = [
 
     # JWT 
     path('api/jwt/',auth_views.obtain_jwt_pair,name="jwt_obtain_pair"),
-    path('api/jwt/refresh/', jwt_views.TokenRefreshView.as_view(), name='jwt_refresh'),
     path('api/jwt/verify/', jwt_views.TokenVerifyView.as_view(), name='jwt_verify'),
 ]
