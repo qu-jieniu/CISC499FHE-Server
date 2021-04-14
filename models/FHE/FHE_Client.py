@@ -13,6 +13,6 @@ class FHE_Client:
         while self.p <= self.m:
             self.p = int.from_bytes(os.urandom(int(size)//8), byteorder=sys.byteorder)
 
-    def decrypt_int(self, xp, q):
-        x = (xp + self.m*q) - self.p
+    def decrypt_int(self, xp, q, p):
+        x = (xp + self.m * q) - p
         return x

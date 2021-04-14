@@ -28,8 +28,8 @@ def on_session(page):
                 x = FHE_Integer.FHE_Integer(dataEntry_int.data_field_int.data, fhe_obj.m, fhe_obj.p)
                 encrypted = x.encrypt()
                 set_id = apis.create_data(encrypted.x_prime, encrypted.q)
-                session_obj.set[dataEntry_int.data_label_int.data] = {"x_prime": encrypted.x_prime,
-                                                                      "q": encrypted.q,
+                session_obj.set[dataEntry_int.data_label_int.data] = {"q": encrypted.q,
+                                                                      "p": encrypted.p,
                                                                       "set_id": set_id}
                 encrypted = None
                 session.pop('_flashes', None)
@@ -75,15 +75,15 @@ def on_session(page):
                         else:
                             expr_str = expr.toString()
                             expr_obj = expr.toString()
-                            # print(expr_str)
                             for i in var:
-                                curr_int = session_obj.set[i]
+                                curr_int = session_obj.set.get(i)
                                 expr_str = re.sub(r'\b'+i+r'\b', curr_int['set_id'], expr_str) # translates labels to ids
-                                enc_str  = 'FHE_Integer.FHE_Integer_Enc(' +  str(curr_int['x_prime']) + ',' + str(curr_int['q']) + ',' +  str(fhe_obj.m) + ',' + str(fhe_obj.p) + ')'
+                                x_prime = apis.get_x_prime(curr_int['set_id'])
+                                enc_str  = 'FHE_Integer.FHE_Integer_Enc(' +  str(x_prime) + ',' + str(curr_int['q']) + ',' +  str(fhe_obj.m) + ',' + str(fhe_obj.p) + ')'
                                 expr_obj = re.sub(r'\b'+i+r'\b', enc_str, expr_obj)
-                            server_eval_id = apis.create_eval(expr.toString())
-                            session_obj.set[dataEval.data_label_eval.data] = {"x_prime": None,
-                                                                              "q": eval(expr_obj).q,
+                            server_eval_id = apis.create_eval(expr_str)
+                            session_obj.set[dataEval.data_label_eval.data] = {"q": eval(expr_obj).q,
+                                                                              'p': eval(expr_obj).p,
                                                                               "set_id": server_eval_id}
                             session.pop('_flashes', None)
                             flash("Expression created", "success")
@@ -111,10 +111,11 @@ def on_session(page):
             else:
                 int_obj = session_obj.set[dataDecrypt.data_label_decrypt.data]
                 server_id = int_obj['set_id']
-                x_prime = apis.decrypt(server_id)
+                x_prime = apis.get_x_prime(server_id)
                 q = int_obj['q']
+                p = int_obj['p']
                 # TODO ... overlay window for decrypt
-                session['decrypted'] = [dataDecrypt.data_label_decrypt.data, fhe_obj.decrypt_int(x_prime, q)]
+                session['decrypted'] = [dataDecrypt.data_label_decrypt.data, fhe_obj.decrypt_int(x_prime, q, p)]
                 session.pop('_flashes', None)
                 flash("Decrypted", "success")
 

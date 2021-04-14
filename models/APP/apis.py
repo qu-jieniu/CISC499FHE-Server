@@ -42,12 +42,11 @@ def create_eval(id_str):
     r = requests.post(url_prefix + '/integers/operation/', json=body, headers=headers, cookies=session['django-cookie'], timeout=2.50)
     return r.json()['setCreated']
 
-def decrypt(id):
+def get_x_prime(id):
     url_prefix = 'http://' + str(session['ip']) + ":" + str(session['port'])
     headers['Authorization'] = "Bearer " + session['access-token']
     body = {"set_id": id}
     r = requests.get(url_prefix + '/integers/set/', json=body, headers=headers, cookies=session['django-cookie'], timeout=2.50)
-    print(r.text)
     return r.json()['integers'][0].get("X")
 
 
