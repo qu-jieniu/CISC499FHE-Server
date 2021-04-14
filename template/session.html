@@ -28,7 +28,7 @@
     </div>
   </form>
 
-  {% elif session['data_type']=='Integer' %}
+  {% else %}
 
   <form method='POST'>
     {{ dataEntry_int.csrf_token }}

@@ -1,6 +1,6 @@
 {% include 'header.html' %}
 
-<div id="login">
+<div id="connect-page">
 
   <h5> Connect to Server </h5>
 
@@ -18,16 +18,6 @@
   </div>
   {{ ipform.submit(class="btn btn-primary login-button") }}
 </form>
-
-
-<div id="exist_session">
-  <h5> Upload an existing session</h5>
-  <form action="" method="POST">
-  {{ fileForm.csrf_token }}
-  {{ fileForm.file(class="file_upload") }} <br>
-  {{ fileForm.upload(class="btn btn-primary login-button") }}
-  </form>
-</div>
 
 
 </div>

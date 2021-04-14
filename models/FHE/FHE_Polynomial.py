@@ -50,13 +50,3 @@ class FHE_Polynomial:
         for index, coeff in enumerate(self.coefficients[::-1]):
             res += coeff * x**index
         return res
-
-
-
-
-# poly1 = FHE_Polynomial(1,2,3,4)
-# poly2 = FHE_Polynomial(-2,-4,3,-1)
-#
-# print(str(poly1))
-# print(str(poly2))
-# print(poly2(6))

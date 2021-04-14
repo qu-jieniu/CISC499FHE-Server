@@ -58,15 +58,15 @@
 }
 
 /**************/
-/* LOGIN.HTML */
+/* CONNECT.HTML */
 
-#login  {
+#connect-page  {
   display: block;
   text-align: center;
   margin-top: 50px;
 }
 
-#connect_server {
+#connect_server{
     justify-content: center;
 }
 
@@ -79,10 +79,32 @@
   margin-bottom: 5px;
 }
 
+
+/*****************/
+/* LOGIN.HTML */
+
+#login-page  {
+  display: block;
+  text-align: center;
+  margin-top: 50px;
+}
+
 .radio li {
-  /* list-style: none; */
+  list-style: none;
   display: inline;
   margin-right: 10px;
+}
+
+.radio {
+  padding: 0px;
+}
+
+#create_session > form > * {
+  margin: 5px;
+}
+
+#create_session span input{
+  display: inline-block;
 }
 
 /*****************/

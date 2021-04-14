@@ -14,11 +14,15 @@ class Session:
 
     def getName(self):
         return self.session_name
+
     def setName(self, name):
         self.session_name = name
+
     def setKeySize(self, key_size):
         self.key_size = key_size
-    def setServerId(self, server_id):
-        self.server_id = server_id
+
+    def setServerId(self, id):
+        self.server_id = id
+
     def freeze(self):
         return jsonpickle.encode(self)
