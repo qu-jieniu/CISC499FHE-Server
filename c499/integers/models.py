@@ -4,6 +4,9 @@ from django.db import models
 # DRF
 from rest_framework.authtoken.models import Token 
 
+# Project
+from utils.utils import Base64Field
+
 class PersistentSession(models.Model):
     session_id = models.CharField(max_length=40,primary_key=True)
     user_id = models.ForeignKey(Token,on_delete=models.CASCADE,related_name="sessions")

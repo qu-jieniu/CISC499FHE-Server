@@ -89,19 +89,29 @@ def setAPIv1(request):
             status_message['session_id'] = session_id
 
         
-        request.data['set_id']=create_set_id()
+        set_id =create_set_id()
         
-        serializer = IntegerSetSerializer(data = request.data) 
+        status_message['set_id'] = set_id
+
+        try:  
+            set_instance = IntegerSet.objects.create(set_id=set_id,session_id=session)
+            integer_list = request.data['integers']
+        except KeyError:
+            status_message["missing_argument"] = "integers not included"
+            return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
+        except BaseException as err:
+            status_message["unknown_error"] = str(err)
+            return Response(status_message,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
+        try:
+            for int_data in integer_list:
+                deserializeBinaryInt(int_data,set_instance)
+        except BaseException as err:
+            status_message["unknown_error"] = str(err)
+            return Response(status_message,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-        if serializer.is_valid():        
-            status_message['set_id'] = serializer.validated_data['set_id'] 
-            serializer.validated_data['session_id']=session
-            serializer.save()
-            return Response(status_message,status=status.HTTP_200_OK)
-        else:
-            status_message["serializerError"] = serializer.errors
-            return Response(status_message, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status_message,status=status.HTTP_200_OK)
+  
 
     elif request.method == 'DELETE':
         # If PersistentSession DNE, set DNE

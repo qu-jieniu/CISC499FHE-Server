@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from .models import Integer,IntegerSet,PersistentSession
 from django.core import serializers as dserializers
-
+from utils.utils import *
+import base64
 
 def set_to_dict(set_model):
     ints_data = Integer.objects.filter(set_id = set_model)
@@ -11,8 +12,8 @@ def set_to_dict(set_model):
     for int_data in ints_data:
         int_values = {}
         int_values["index"] = int_data.index
-        int_values["X"] = int_data.X
-        int_values["q"] = int_data.q
+        int_values["X"] = base64.b64encode(int_data.X)
+        int_values["q"] = base64.b64encode(int_data.q)
         int_data_list.append(int_values)
 
     serialized = {}
@@ -37,10 +38,21 @@ def session_to_dict(session_model):
 
     return serialized
 
+
+def deserializeBinaryInt(data,set_instance):
+    # make integer instance
+    try:
+        Integer.objects.create(set_id=set_instance,index=data['index'],X=base64.b64decode(data['X']),q=base64.b64decode(data['q']))
+    except BaseException as err:
+        print(err)
+        return False
+    return True
+
+
 class IntegerSerializer(serializers.ModelSerializer):
     index = serializers.IntegerField(required=True,min_value=0)
-    X = serializers.IntegerField(required=True)
-    q = serializers.IntegerField(required=True)
+    X = serializers.IntegerField(required=True,min_value=0)
+    q = serializers.IntegerField(required=True,min_value=0)
     class Meta:
         model = Integer
         fields = ['index','X','q']
