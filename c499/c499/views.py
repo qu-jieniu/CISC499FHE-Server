@@ -21,8 +21,16 @@ def statusAPIv1(request):
             _ = len(Token.objects.all()) # forces evaluation
             status_message["database"] = "ok"
             return Response(status_message, status=status.HTTP_200_OK)
-        except err:
+        except Exception as err:
             status_message["database"] = "error: " + str(err)
             return Response(status_message, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
     else:
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+'''
+# create PersistentSession when BaseSession is created
+@receiver(post_save,sender=SessionBase)
+def create_auth_token(sender,instance=None,created=False,**kwargs):
+    if created:
+        PersistentSession.objects.create(session_id=instance.get('sessionid'),user_id=)
+'''

@@ -49,10 +49,10 @@ def signup(request):
             except Token.DoesNotExist:
                 status_message["criticalError"] = "token not created on signup"
                 return Response(status_message,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            except err:
+            except Exception as err:
                 status_message["serviceError"] = err
                 return Response(status_message,status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
-            status_message["deviceToken"] = device.key
+            status_message["token"] = device.key
             return Response(status_message,status=status.HTTP_200_OK)
         else:
             status_message["formError"] = form.errors 
@@ -80,11 +80,11 @@ def login(request):
             except Token.DoesNotExist:
                 status_message["authError"] = "user does not have token"
                 return Response(status_message,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            except err:
+            except Exception as err:
                 status_message["databaseError"] = err
                 return Response(status_message,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
-            status_message["deviceToken"] = device.key
+            status_message["token"] = device.key
             return Response(status_message,status=status.HTTP_200_OK)
         else:
             status_message["authError"] = "bad login"
@@ -111,7 +111,7 @@ def logout(request):
         except (Token.DoesNotExist,User.DoesNotExist):
             status_message["authError"] = "invalid token"
             return Response(status_message,status=status.HTTP_401_UNAUTHORIZED)
-        except err:
+        except Exception as err:
             status_message["serviceError"] = err
             return Response(status_message,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -153,7 +153,7 @@ def del_logout(request):
         except PersistentSession.DoesNotExist:
             status_message["sessionError"] = "invalid session_id"
             return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
-        except err:
+        except Exception as err:
             status_message["serviceError"] = err
             return Response(status_message,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -179,7 +179,7 @@ def obtain_jwt_pair(request):
         except Token.DoesNotExist:
             status_message["tokenError"] = "how did you get past authentication?"
             return Response(status_message,status.HTTP_401_UNAUTHORIZED)
-        except err:
+        except Exception as err:
             status_message["databaseError"] = err
             return Response(status_message,status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
         
@@ -190,10 +190,10 @@ def obtain_jwt_pair(request):
             decodeJTW = jwt_utils.decode(str(refresh.access_token), secret_key, algorithms=["HS256"])
             decodeJTW['token'] = stripped
             encoded = jwt_utils.encode(decodeJTW, secret_key, algorithm="HS256")
-        except err:
+        except Exception as err:
             status_message["jwtError"] = str(err)
             return Response(status_message,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
+
         status_message["refresh"] = str(refresh)
         status_message["access"] = str(encoded)
         return Response(status_message,status=status.HTTP_200_OK)

@@ -6,8 +6,8 @@ def parse_eq(equation):
     
     eq_parser = Lark("""
     
-    
-    
+    ?start: sum
+
     ?sum: product 
     | sum "+" product -> add
     | sum "-" product -> sub
@@ -16,10 +16,12 @@ def parse_eq(equation):
     | product "*" atom -> mul
 
     
-    ?atom : NAME -> set_id
+    ?atom : ALPHA -> set_id
     | "-" atom -> neg
-    | "(" sum ")" -> bracket
+    | "(" sum ")" 
     
+    ALPHA: /[a-zA-Z0-9_]+/
+
     %import common.ESCAPED_STRING
     %import common.CNAME -> NAME
     %import common.WS_INLINE
@@ -54,7 +56,9 @@ class EqTransformer(Transformer):
             sum_set[str(i)] = first[i]+second[i] 
 
         return list(sum_set.values())
-        
+    
+    def neg(self, atom):
+        return [elem*-1 for elem in atom]
 
     def sub(self,set_list):
         first = set_list[0]
