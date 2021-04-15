@@ -21,15 +21,15 @@ class FHE_Integer_Enc:
         return self.x_prime, self.q, self.p
 
     def __add__(self, enc_obj):
-        x1, q1, p1 = self.getContext()
-        x2, q2, p2 = enc_obj.getContext()
-        return FHE_Integer_Enc(x1+x2, q1+q2, self.m, p1+p2)
+        xp1, q1, p1 = self.getContext()
+        xp2, q2, p2 = enc_obj.getContext()
+        return FHE_Integer_Enc(xp1+xp2, q1+q2, self.m, p1+p2)
 
     def __mul__(self, enc_obj):
-        x1, q1, p1 = self.getContext()
-        x2, q2, p2 = enc_obj.getContext()
-        x1_d = x1 + q1*self.m - p1
-        x2_d = x2 + q2*self.m - p2
-        q_new = x1*q2 + x2*q1 + q1*q2*self.m
-        p_new = x1_d*p2 + x2_d*p1 + p1*p2
-        return FHE_Integer_Enc(x1*x2, q_new, self.m, p_new)
+        xp1, q1, p1 = self.getContext()
+        xp2, q2, p2 = enc_obj.getContext()
+        x1 = xp1 + q1*self.m - p1
+        x2 = xp2 + q2*self.m - p2
+        q0 = xp1*q2 + xp2*q1 + q1*q2*self.m
+        p0 = x1*p2 + x2*p1 + p1*p2
+        return FHE_Integer_Enc(xp1*xp2, q0, self.m, p0)
