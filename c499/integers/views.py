@@ -22,8 +22,10 @@ from hashlib import sha1,sha256
 import jwt as jwt_utils
 import json
 import math
+import os
 
-with open('etc\config.json','r') as config_file:
+
+with open(os.path.join('etc', 'config.json'),'r') as config_file:
     config = json.load(config_file)
 
 

@@ -15,7 +15,7 @@ import json
 import os
 from pathlib import Path
 
-with open('etc\config.json','r') as config_file:
+with open(os.path.join('etc', 'config.json'),'r') as config_file:
     config = json.load(config_file)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

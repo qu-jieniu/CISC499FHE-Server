@@ -3,10 +3,11 @@ from datetime import datetime
 from hashlib import sha256
 import json
 import base64
+import os
 from django.db import models
 
 
-with open('etc\config.json','r') as config_file:
+with open(os.path.join('etc', 'config.json'),'r') as config_file:
     config = json.load(config_file)
 
 def create_set_id():
