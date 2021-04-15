@@ -3,23 +3,6 @@ from externalLib import *
 
 headers = {"Content-type":'application/json', "Authorization": None}
 
-import base64
-
-def b64e(s):
-    return base64.b64encode(s.encode()).decode()
-
-
-def b64d(s):
-    return base64.b64decode(s).decode()
-
-def connect_server(ip, port):
-    url = 'http://' + str(ip) + ":" + str(port) + "/status/"
-    r = requests.get(url, timeout=2.50)
-    if r.status_code == 200:
-        return True
-    else:
-        return False
-
 def create_session():
     url_prefix = 'http://' + str(session['ip']) + ":" + str(session['port'])
     uuid0 = uuid.uuid4()
