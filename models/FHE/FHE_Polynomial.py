@@ -20,7 +20,6 @@ class FHE_Polynomial:
             return res
 
         deg = len(self.coefficients) - 1
-        print(deg)
         res = ""
 
         for i in range(0,deg+1):

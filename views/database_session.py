@@ -8,6 +8,7 @@ def on_session(page):
     dataEval = forms.dataEval()
     dataDecrypt = forms.dataDecrypt()
 
+
     if request.method == "POST":
 
         session['decrypted'] = None
@@ -72,15 +73,32 @@ def on_session(page):
                         elif any(l not in session_obj.set for l in var):
                             session.pop('_flashes', None)
                             flash("Label(s) in the expression doesn't exist. Please try again.", "error")
+                        elif any(l=='tmp' for l in var):
+                            session.pop('_flashes', None)
+                            flash("tmp is a reserved keyword. Please try again.", "error")
                         else:
                             expr_str = expr.toString()
                             expr_obj = expr.toString()
-                            for i in var:
-                                curr_int = session_obj.set.get(i)
-                                expr_str = re.sub(r'\b'+i+r'\b', curr_int['set_id'], expr_str) # translates labels to ids
-                                x_prime = apis.get_x_prime(curr_int['set_id'])
-                                enc_str  = 'FHE_Integer.FHE_Integer_Enc(' +  str(x_prime) + ',' + str(curr_int['q']) + ',' +  str(fhe_obj.m) + ',' + str(fhe_obj.p) + ')'
-                                expr_obj = re.sub(r'\b'+i+r'\b', enc_str, expr_obj)
+                            # Resolve numerical values to FHE Objects
+                            tmp_split = expr.toString().replace('(', ' ( ').replace(')', ' ) ').replace('+', ' + ').replace('-', ' - ').replace('*', ' * ').split(" ")
+                            for i in tmp_split:
+                                if i in session_obj.set: # resolve variables
+                                    curr_int = session_obj.set.get(i)
+                                    expr_str = re.sub(r'\b'+i+r'\b', curr_int['set_id'], expr_str) # translates labels to ids
+                                    x_prime = apis.get_encrypted(curr_int['set_id'])
+                                    enc_str  = 'FHE_Integer.FHE_Integer_Enc(' +  str(x_prime) + ',' + str(curr_int['q']) + ',' +  str(fhe_obj.m) + ',' + str(curr_int['p']) + ')'
+                                    expr_obj = re.sub(r'\b'+i+r'\b', enc_str, expr_obj)
+                                elif i not in '(+-*)' and i.isalpha()==False: # resolve numericals
+                                    x = FHE_Integer.FHE_Integer(int(i), fhe_obj.m, fhe_obj.p)
+                                    encrypted = x.encrypt()
+                                    set_id = apis.create_data(encrypted.x_prime, encrypted.q)
+                                    session_obj.set[i] = {"q": encrypted.q,
+                                                          "p": encrypted.p,
+                                                          "set_id": set_id}
+
+                                    expr_str = re.sub(r'\b'+i+r'\b', set_id, expr_str) # translates labels to ids
+                                    enc_str = 'FHE_Integer.FHE_Integer_Enc(' +  str(encrypted.x_prime) + ',' + str(encrypted.q) + ',' +  str(fhe_obj.m) + ',' + str(fhe_obj.p) + ')'
+                                    expr_obj = re.sub(r'\b'+i+r'\b', enc_str, expr_obj)
                             server_eval_id = apis.create_eval(expr_str)
                             session_obj.set[dataEval.data_label_eval.data] = {"q": eval(expr_obj).q,
                                                                               'p': eval(expr_obj).p,
@@ -88,7 +106,7 @@ def on_session(page):
                             session.pop('_flashes', None)
                             flash("Expression created", "success")
                 except Exception as e:
-                    print(e)
+                    print("error ", e)
                     session.pop('_flashes', None)
                     flash("Illegal expression. Please consult the Usage Guide.", "error")
 
@@ -110,8 +128,7 @@ def on_session(page):
 
             else:
                 int_obj = session_obj.set[dataDecrypt.data_label_decrypt.data]
-                server_id = int_obj['set_id']
-                x_prime = apis.get_x_prime(server_id)
+                x_prime = apis.get_encrypted(int_obj['set_id'])
                 q = int_obj['q']
                 p = int_obj['p']
                 # TODO ... overlay window for decrypt

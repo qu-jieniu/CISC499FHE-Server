@@ -3,6 +3,14 @@ from externalLib import *
 
 headers = {"Content-type":'application/json', "Authorization": None}
 
+def connect_server(ip, port):
+    url = 'http://' + str(ip) + ":" + str(port) + "/status/"
+    r = requests.get(url, timeout=2.50)
+    if r.status_code == 200:
+        return True
+    else:
+        return False
+
 def create_session():
     url_prefix = 'http://' + str(session['ip']) + ":" + str(session['port'])
     uuid0 = uuid.uuid4()
@@ -25,10 +33,10 @@ def create_data(x0, q0):
     session['access-token'] = r.json()['access']
 
     headers['Authorization'] = "Bearer " + session['access-token']
-    x0_e = base64.b64encode(x0.to_bytes(math.ceil(x0.bit_length()/8),'big')).decode()
-    q0_e = base64.b64encode(q0.to_bytes(math.ceil(q0.bit_length()/8),'big')).decode()
-    print(x0, x0_e)
-    body= {"integers":[{"index":0, "X":str(x0_e), "q":str(q0_e)}]}
+    # x0_e = base64.b64encode(x0.to_bytes(math.ceil(x0.bit_length()/8),'big')).decode()
+    # q0_e = base64.b64encode(q0.to_bytes(math.ceil(q0.bit_length()/8),'big')).decode()
+    # body= {"integers":[{"index":0, "X":str(x0_e), "q":str(q0_e)}]}
+    body= {"integers":[{"index":0, "X":x0, "q":q0}]}
     r = requests.post(url_prefix + '/integers/set/', json=body, headers=headers, cookies=session['django-cookie'], timeout=2.50)
     return r.json()['set_id']
 
@@ -41,7 +49,6 @@ def create_eval(id_str):
     headers['Authorization'] = "Bearer " + session['access-token']
     body= {"equation": str(id_str)}
     r = requests.post(url_prefix + '/integers/operation/', json=body, headers=headers, cookies=session['django-cookie'], timeout=2.50)
-    print(r.text)
     return r.json()['setCreated']
 
 def get_encrypted(id):
@@ -54,5 +61,6 @@ def get_encrypted(id):
     body = {"set_id": id}
     r = requests.get(url_prefix + '/integers/set/', json=body, headers=headers, cookies=session['django-cookie'], timeout=2.50)
     xp = r.json()['integers'][0].get("X")
-    dec = int.from_bytes(base64.b64decode(xp), byteorder='big')
-    return dec
+    # dec = int.from_bytes(base64.b64decode(xp), byteorder='big')
+    # return dec
+    return xp

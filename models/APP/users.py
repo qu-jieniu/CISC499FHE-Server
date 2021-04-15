@@ -23,6 +23,3 @@ class Session:
 
     def setServerId(self, id):
         self.server_id = id
-
-    def freeze(self):
-        return jsonpickle.encode(self)

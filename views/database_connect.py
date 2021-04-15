@@ -20,9 +20,11 @@ def connect():
                     session['ip'], session['port'] = ipform.ip.data, ipform.port.data
                     flash('Successfully connected to the server.', 'success')
                     return redirect(url_for('login'))
+                else:
+                    flash('Unable to connect to server.', 'error')
             except:
                 flash('Unable to reach the server. Please check if you have FHE_Server setup properly.', "error")
-                
+
         if not ipform.validate_on_submit():
             flash('Invalid IP Address or Port. Please try again.', "error")
             return redirect(url_for('connect'))

@@ -1,5 +1,4 @@
 import math
-import base64
 import os
 import sys
 
@@ -7,11 +6,12 @@ import sys
 class FHE_Client:
     def __init__(self, size):
         # self.key = crypto.generate_key()  #key for q
-        size = 50
-        self.m = int.from_bytes(os.urandom(int(size)//8-1), byteorder=sys.byteorder)
-        self.p = int.from_bytes(os.urandom(int(size)//8), byteorder=sys.byteorder)
-        while self.p <= self.m:
-            self.p = int.from_bytes(os.urandom(int(size)//8), byteorder=sys.byteorder)
+        # self.m = int.from_bytes(os.urandom(int(size)//8), byteorder=sys.byteorder)
+        # self.p = int.from_bytes(os.urandom(int(size)//8), byteorder=sys.byteorder)
+        # while self.p <= self.m:
+        #     self.p = int.from_bytes(os.urandom(int(size)//8), byteorder=sys.byteorder)
+        self.m = 10
+        self.p = 11
 
     def decrypt_int(self, xp, q, p):
         x = (xp + self.m * q) - p
