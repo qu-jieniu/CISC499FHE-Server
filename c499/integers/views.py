@@ -138,7 +138,7 @@ def setAPIv1(request):
             return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
         else:
             queried.delete()
-            return Response(set_dict,status=status.HTTP_200_OK)
+            return Response("ok", status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
