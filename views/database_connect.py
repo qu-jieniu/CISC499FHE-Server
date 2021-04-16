@@ -1,5 +1,6 @@
 from app import *
 
+
 @app.route('/database/connect', methods=['GET', 'POST'])
 def connect():
     # if current session is still saves in cookies, return to that session
@@ -7,7 +8,7 @@ def connect():
     #     flash('Returned to the previous unsaved session.', 'info')
     #     session_obj = jsonpickle.decode(session['session_obj'])
     #     return redirect(url_for('on_session', page=session_obj.getName()))
-
+    session['label_list'] = []
     ipform = forms.IPForm()
     server_connected = False
     if request.method == "POST":

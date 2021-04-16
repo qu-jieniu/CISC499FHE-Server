@@ -2,9 +2,9 @@
 
 <div id="session_page">
   <div style="display:inline-block">
-  <p> Session Name: <span style="color: rgb(0, 123, 250)"> {{ page }}</span> <br>
-    Key Size: <span style="color: rgb(0, 123, 250)">{{ session['key_size'] }} Bits</span> ,
-    Data Type: <span style="color: rgb(0, 123, 250)">{{ session['data_type'] }}</span> </p>
+    <p> Session Name: <span style="color: rgb(0, 123, 250)"> {{ page }}</span> <br>
+      Key Size: <span style="color: rgb(0, 123, 250)">{{ session['key_size'] }} Bits</span> ,
+      Data Type: <span style="color: rgb(0, 123, 250)">{{ session['data_type'] }}</span> </p>
   </div>
   <br>
   <h6> Data Entry: </h6>
@@ -47,7 +47,6 @@
       </div>
     </div>
   </form>
-
   {% endif %}
 
 
@@ -91,33 +90,137 @@
   </form>
   <br>
 
+  <h6> Data Deletion: </h6>
+  <form method='POST'>
+    {{ dataDelete.csrf_token }}
+    <div class="row">
+      <div class="col-sm-3">
+        {{ dataDelete.data_label_delete(class="form-control") }}
+        <small class="form-text text-muted">{{ dataDelete.data_label_delete.label }}</small>
+      </div>
+      <div class="col-sm-2">
+        {{ dataDelete.submit_delete(class="btn btn-danger") }}
+      </div>
+    </div>
+  </form>
+  <br>
+
 
   <h4> Manage This Session </h4>
   <br>
-
   <h6> Check Existing Labels:
-    <a href="about:blank" target="_blank">
-      <button type="submit" class="btn btn-primary" style="margin-left: 10px;">Open a New Tab</button>
-    </a>
+    <button id="submit_label" type="submit" class="btn btn-primary" style="margin-left: 10px;">Show Labels</button>
   </h6>
-  <br>
+  {% if session['label_list']|length %}
+  <script type="text/javascript">
+    var labels = [];
+    var labels_html = "";
+  </script>
+  {% for item in session['label_list'] %}
+  <script type="text/javascript">
+    labels_html += "<div class='labels'>{{ item }}</div>"
+  </script>
+  {% endfor %}
+  <script>
+    $('#submit_label').click(function() {
+      bootbox.dialog({
+        title: "Labels in current session:",
+        message: labels_html,
+        centerVertical: true
+      });
+    });
+  </script>
+  {% else %}
+  <script>
+    $('#submit_label').click(function() {
+      bootbox.dialog({
+        title: "Labels in current session:",
+        message: "No data in the system. Please create a new data.",
+        centerVertical: true
+      });
+    });
+  </script>
+  {% endif %}
 
+
+  <br>
   <h6> Delete Current Seesion and All Data:
-    <a href="about:blank" target="_blank">
-      <button type="submit" class="btn btn-danger" style="margin-left: 10px;">Delete</button>
-    </a>
+    <button id="delete_session" type="submit" class="btn btn-danger" style="margin-left: 10px;">Delete</button>
   </h6>
+  <script>
+    $('#delete_session').click(function() {
+          bootbox.confirm({
+              title: "Delete Session?",
+              message: "This will delete this session from both client and server side. The data cannot be retrived unless you have downloaded it.<br><br>Are you sure you want to delete this session?",
+              buttons: {
+                confirm: {
+                  label: 'Yes',
+                  className: 'btn-danger'
+                },
+                cancel: {
+                  label: 'Cancel',
+                },
+              },
+              centerVertical: true,
+              callback: function(result) {
+                console.log(result)
+                var request = $.ajax({
+                  url: "{{page}}",
+                  method: "POST",
+                  data: {
+                    delete: result
+                  },
+                  dataType: "html",
+                  success: function(){
+                     if (result==true)
+                       window.location.href = "/"
+                  }
+                });
+              }});
+          });
+  </script>
   <br>
 
   <h6> Download Current Session for Future Use:
-    <a href="about:blank" target="_blank">
-      <button type="submit" class="btn btn-success" style="margin-left: 10px;">Download</button>
-    </a>
+    <button id="download-session" type="submit" class="btn btn-success" style="margin-left: 10px;">Save To</button>
   </h6>
-  <br>
-
-
-
+  <script>
+    $('#download-session').click(function() {
+          var curr_path =
+          bootbox.confirm({
+              size: "large",
+              title: "Save Session?",
+              message: "You may able to use this file in the future for existing data. <br>\
+                        Saving this will also overwrite your previous saved data.<br>\
+                        <b>The data contains your private key. Please keep it in a secure location.</b> <br><br>\
+                        Are you sure you want to save the session to file <br><span id='path'>{{ session['pickle_path'] }}</span> ?",
+              buttons: {
+                confirm: {
+                  label: 'Yes',
+                  className: 'btn-success'
+                },
+                cancel: {
+                  label: 'Cancel',
+                },
+              },
+              centerVertical: true,
+              callback: function(result) {
+                console.log(result)
+                var request = $.ajax({
+                  url: "{{page}}",
+                  method: "POST",
+                  data: {
+                    download: result
+                  },
+                  dataType: "html",
+                  success: function(){
+                     if (result==true)
+                       window.location.href = "/"
+                  }
+                });
+              }});
+          });
+  </script>
 
 
 </div>

@@ -1,7 +1,8 @@
 from flask_wtf import *
 from wtforms import *
 from wtforms.validators import *
-from wtforms_validators import AlphaDash
+from wtforms_validators import *
+from flask_wtf.file import *
 import re
 
 class IPForm(FlaskForm):
@@ -15,13 +16,13 @@ class configNewSession(FlaskForm):
             if field.type == "_Option":
                 render_kw.setdefault("required", True)
             return super().render_field(field, render_kw)
-    session_name = StringField('Session Name', validators=[DataRequired(), AlphaDash()])
-    key_size = RadioField('Key Size', validators=[DataRequired()], choices=[('512','512 Bits'),('1024','1024 Bits'), ('2048','2048 Bits'), ('4096','4096 Bits')])
+    session_name = StringField('Session Name', validators=[DataRequired(), Alpha()])
+    key_size = RadioField('Key Size', validators=[DataRequired()], choices=[('32','32 Bits'),('64','64 Bits'), ('128','128 Bits'), ('256','256 Bits')])
     data_type = RadioField('Data Type', validators=[DataRequired()], choices=[('Integer', "Integer"), ('Polynomial', 'Polynomial')])
     submit = SubmitField('Create')
 
 class fileForm(FlaskForm):
-    file = FileField()
+    file = FileField(validators=[FileRequired()])
     upload = SubmitField('Upload')
 
 class dataEntry_int(FlaskForm):
@@ -46,3 +47,7 @@ class dataEval(FlaskForm):
 class dataDecrypt(FlaskForm):
     data_label_decrypt = StringField("Label", validators=[DataRequired(), AlphaDash()], render_kw={'placeholder':'numOfElectronics'})
     submit_decrypt = SubmitField("Get")
+
+class dataDelete(FlaskForm):
+    data_label_delete = StringField("Label", validators=[DataRequired(), AlphaDash()], render_kw={'placeholder':'numOfElectronics'})
+    submit_delete = SubmitField("Delete")

@@ -1,6 +1,7 @@
 *****/__pycache__
 /FHE_Venv
 *****/.DS_Store
+etc/*.p
 
 /venv
 venv/

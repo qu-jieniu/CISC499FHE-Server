@@ -1,13 +1,15 @@
 from app import *
-from models.FHE import FHE_Client, FHE_Integer
 
-@app.route('/database/session/<page>', methods=['GET', 'POST'])
+
+@app.route('/database/session/<page>', methods=['GET', 'POST','DELETE'])
 def on_session(page):
     dataEntry_int = forms.dataEntry_int()
     dataEntry_poly = forms.dataEntry_poly()
     dataEval = forms.dataEval()
     dataDecrypt = forms.dataDecrypt()
+    dataDelete = forms.dataDelete()
 
+    session['pickle_path'] = str(pathlib.Path(__file__).parent.parent.absolute() / 'etc' / str(session['session_name']+'.p'))
 
     if request.method == "POST":
 
@@ -17,27 +19,25 @@ def on_session(page):
         if dataEntry_int.validate_on_submit():
 
             session_obj = jsonpickle.decode(session['session_obj'])
-            fhe_obj = jsonpickle.decode(session['fhe_obj'])
 
             # TODO ... Overwrite
             if dataEntry_int.data_label_int.data in session_obj.set:
                 session.pop('_flashes', None)
-                flash("Label exists in this session. Try another label.", "error")
+                flash("Label exists in this session. Try another label or delete this label first.", "error")
 
             else:
-
-                x = FHE_Integer.FHE_Integer(dataEntry_int.data_field_int.data, fhe_obj.m, fhe_obj.p)
+                x = FHE_Integer.FHE_Integer(dataEntry_int.data_field_int.data, session_obj.fhe.m, session_obj.fhe.p)
                 encrypted = x.encrypt()
                 set_id = apis.create_data(encrypted.x_prime, encrypted.q)
                 session_obj.set[dataEntry_int.data_label_int.data] = {"q": encrypted.q,
                                                                       "p": encrypted.p,
                                                                       "set_id": set_id}
                 encrypted = None
+                session['label_list'].append(dataEntry_int.data_label_int.data)
                 session.pop('_flashes', None)
                 flash("Data created", "success")
 
             session['session_obj'] = jsonpickle.encode(session_obj)
-            session['fhe_obj'] = jsonpickle.encode(fhe_obj)
             return redirect(url_for('on_session', page=page))
 
 
@@ -48,8 +48,6 @@ def on_session(page):
         if dataEval.validate_on_submit():
 
             session_obj = jsonpickle.decode(session['session_obj'])
-            fhe_obj = jsonpickle.decode(session['fhe_obj'])
-
 
             # TODO ... Overwrite
             if dataEval.data_label_eval.data in session_obj.set:
@@ -86,10 +84,10 @@ def on_session(page):
                                     curr_int = session_obj.set.get(i)
                                     expr_str = re.sub(r'\b'+i+r'\b', curr_int['set_id'], expr_str) # translates labels to ids
                                     x_prime = apis.get_encrypted(curr_int['set_id'])
-                                    enc_str  = 'FHE_Integer.FHE_Integer_Enc(' +  str(x_prime) + ',' + str(curr_int['q']) + ',' +  str(fhe_obj.m) + ',' + str(curr_int['p']) + ')'
+                                    enc_str  = 'FHE_Integer.FHE_Integer_Enc(' +  str(x_prime) + ',' + str(curr_int['q']) + ',' +  str(session_obj.fhe.m) + ',' + str(curr_int['p']) + ')'
                                     expr_obj = re.sub(r'\b'+i+r'\b', enc_str, expr_obj)
                                 elif i not in '(+-*)' and i.isalpha()==False: # resolve numericals
-                                    x = FHE_Integer.FHE_Integer(int(i), fhe_obj.m, fhe_obj.p)
+                                    x = FHE_Integer.FHE_Integer(int(i), session_obj.fhe.m, session_obj.fhe.p)
                                     encrypted = x.encrypt()
                                     set_id = apis.create_data(encrypted.x_prime, encrypted.q)
                                     session_obj.set[i] = {"q": encrypted.q,
@@ -97,12 +95,13 @@ def on_session(page):
                                                           "set_id": set_id}
 
                                     expr_str = re.sub(r'\b'+i+r'\b', set_id, expr_str) # translates labels to ids
-                                    enc_str = 'FHE_Integer.FHE_Integer_Enc(' +  str(encrypted.x_prime) + ',' + str(encrypted.q) + ',' +  str(fhe_obj.m) + ',' + str(fhe_obj.p) + ')'
+                                    enc_str = 'FHE_Integer.FHE_Integer_Enc(' +  str(encrypted.x_prime) + ',' + str(encrypted.q) + ',' +  str(session_obj.fhe.m) + ',' + str(session_obj.fhe.p) + ')'
                                     expr_obj = re.sub(r'\b'+i+r'\b', enc_str, expr_obj)
                             server_eval_id = apis.create_eval(expr_str)
                             session_obj.set[dataEval.data_label_eval.data] = {"q": eval(expr_obj).q,
                                                                               'p': eval(expr_obj).p,
                                                                               "set_id": server_eval_id}
+                            session['label_list'].append(dataEval.data_label_eval.data)
                             session.pop('_flashes', None)
                             flash("Expression created", "success")
                 except Exception as e:
@@ -111,7 +110,6 @@ def on_session(page):
                     flash("Illegal expression. Please consult the Usage Guide.", "error")
 
                 session['session_obj'] = jsonpickle.encode(session_obj)
-                session['fhe_obj'] = jsonpickle.encode(fhe_obj)
                 return redirect(url_for('on_session', page=page))
 
         elif dataEval.submit_eval.data and dataEval.validate_on_submit() == False:
@@ -120,7 +118,6 @@ def on_session(page):
 
         if dataDecrypt.validate_on_submit():
             session_obj = jsonpickle.decode(session['session_obj'])
-            fhe_obj = jsonpickle.decode(session['fhe_obj'])
 
             if dataDecrypt.data_label_decrypt.data not in session_obj.set:
                 session.pop('_flashes', None)
@@ -132,12 +129,11 @@ def on_session(page):
                 q = int_obj['q']
                 p = int_obj['p']
                 # TODO ... overlay window for decrypt
-                session['decrypted'] = [dataDecrypt.data_label_decrypt.data, fhe_obj.decrypt_int(x_prime, q, p)]
+                session['decrypted'] = [dataDecrypt.data_label_decrypt.data, session_obj.fhe.decrypt_int(x_prime, q, p)]
                 session.pop('_flashes', None)
                 flash("Decrypted", "success")
 
             session['session_obj'] = jsonpickle.encode(session_obj)
-            session['fhe_obj'] = jsonpickle.encode(fhe_obj)
             return redirect(url_for('on_session', page=page))
 
 
@@ -145,5 +141,45 @@ def on_session(page):
             session.pop('_flashes', None)
             flash("Invalid Label (AlphaDash). Please try again.", "error")
 
+        if dataDelete.validate_on_submit():
+            session_obj = jsonpickle.decode(session['session_obj'])
 
-    return render_template('session.html', page=page, dataEntry_int=dataEntry_int, dataEntry_poly=dataEntry_poly, dataEval=dataEval, dataDecrypt=dataDecrypt)
+            if dataDelete.data_label_delete.data not in session_obj.set:
+                session.pop('_flashes', None)
+                flash("Label does not exist in this session. Use another label.", "error")
+
+            else:
+                deleted = apis.delete_data(session_obj.set.get(dataDelete.data_label_delete.data)['set_id'])
+                if deleted:
+                    session['label_list'].remove(dataDelete.data_label_delete.data)
+                    session_obj.set.pop(dataDelete.data_label_delete.data)
+                    session.pop('_flashes', None)
+                    flash("Deleted", "success")
+                else:
+                    session.pop('_flashes', None)
+                    flash("Something's wrong on the server side.", "error")
+
+            session['session_obj'] = jsonpickle.encode(session_obj)
+            return redirect(url_for('on_session', page=page))
+
+        if request.form.get('delete') == 'true':
+            flash("Session Deleted.", "info")
+            return url_for('about')
+
+        if request.form.get('download') == 'true':
+            session_obj = jsonpickle.decode(session['session_obj'])
+            for i in session_obj.set.values():
+                x = apis.get_server_int(i['set_id'])
+                session_obj.all_int_set.append(x)
+            pickle.dump( session_obj, open(session['pickle_path'] , "wb" ) )
+            session_obj = None
+            session['session_obj'] = None
+            flash("Session Downloaded.", "info")
+            return url_for('about')
+
+    return render_template('session.html', page=page,
+                           dataEntry_int=dataEntry_int,
+                           dataEntry_poly=dataEntry_poly,
+                           dataEval=dataEval,
+                           dataDecrypt=dataDecrypt,
+                           dataDelete=dataDelete)
