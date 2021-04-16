@@ -41,7 +41,7 @@ class dataEntry_poly(FlaskForm):
 
 class dataEval(FlaskForm):
     data_label_eval = StringField("Label", validators=[DataRequired(), AlphaDash()], render_kw={'placeholder':'numOfElectronics'})
-    data_field_eval = StringField('Data', validators=[DataRequired()], render_kw={"placeholder": 'numOfPhone + numOfTablet'})
+    data_field_eval = StringField('Expression', validators=[DataRequired()], render_kw={"placeholder": 'numOfPhone + numOfTablet'})
     submit_eval = SubmitField("Submit")
 
 class dataDecrypt(FlaskForm):
