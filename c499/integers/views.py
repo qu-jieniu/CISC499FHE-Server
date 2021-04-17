@@ -211,7 +211,7 @@ def sessionAPIv1(request):
             status_message['argError'] = "session_id not provided"
             return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
 
-        queried = PersistentSession.objects.get(set_id=working_session)
+        queried = PersistentSession.objects.get(session_id=working_session)
 
         if not queried:
             status_message["sessionError"] = "session_id does not exist"
