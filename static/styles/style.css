@@ -29,8 +29,6 @@
 
 .alert {
   position:static;
-  /* right:0; */
-  /* top:10%; */
   display: block;
   float: right;
   padding: 7px;
@@ -65,6 +63,17 @@ input.form-control::placeholder {
   height: 100%;
   width: 100%;
   object-fit: cover;
+}
+
+pre {background-color: #eee; border: 1px solid #999; display: block; padding: 20px;}
+
+#warning{
+  display:block;  
+  padding: 10px;
+  text-align: center;
+  border-radius:6px;
+  border:1px solid #FFFFAA;
+  background-color: #FFFFAA;
 }
 
 /**************/
@@ -121,6 +130,11 @@ input.form-control::placeholder {
 /* DATABASE.HTML */
 #session_page {
   margin: 15px 10px 0px 10px;
+}
+
+
+#decryption p{
+  margin: 0;
 }
 
 .labels {

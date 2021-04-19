@@ -1,11 +1,8 @@
-import math
-import os
-import sys
-
+from app import *
+from etc.config.externalLib import *
 
 class FHE_Client:
     def __init__(self, size):
-        # self.key = crypto.generate_key()  #key for q
         self.m = int.from_bytes(os.urandom(int(size)//8), byteorder='big')
         self.p = int.from_bytes(os.urandom(int(size)//8), byteorder='big')
         while self.p <= self.m:
