@@ -28,9 +28,10 @@ from hashlib import sha1,sha256
 import json
 import jwt as jwt_utils
 import logging
+import os
 
 # open configfile for secret key
-with open('etc\config.json','r') as config_file:
+with open(os.path.join('etc', 'config.json'),'r') as config_file:
     config = json.load(config_file)
 
 # get logger instance

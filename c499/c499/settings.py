@@ -15,7 +15,7 @@ import json
 import os
 from pathlib import Path
 
-with open('etc\config.json','r') as config_file:
+with open(os.path.join('etc', 'config.json'),'r') as config_file:
     config = json.load(config_file)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -31,7 +31,7 @@ SECRET_KEY = sha256(config['SECRET_KEY'].rstrip().encode('utf-8')).hexdigest()
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 # ensure django does not forward to https
 # this is true in production with proper configuration

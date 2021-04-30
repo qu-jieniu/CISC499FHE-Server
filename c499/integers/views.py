@@ -22,8 +22,10 @@ from hashlib import sha1,sha256
 import jwt as jwt_utils
 import json
 import math
+import os
 
-with open('etc\config.json','r') as config_file:
+
+with open(os.path.join('etc', 'config.json'),'r') as config_file:
     config = json.load(config_file)
 
 
@@ -136,7 +138,7 @@ def setAPIv1(request):
             return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
         else:
             queried.delete()
-            return Response(set_dict,status=status.HTTP_200_OK)
+            return Response("ok", status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
@@ -209,7 +211,7 @@ def sessionAPIv1(request):
             status_message['argError'] = "session_id not provided"
             return Response(status_message,status=status.HTTP_400_BAD_REQUEST)
 
-        queried = PersistentSession.objects.get(set_id=working_session)
+        queried = PersistentSession.objects.get(session_id=working_session)
 
         if not queried:
             status_message["sessionError"] = "session_id does not exist"
