@@ -36,8 +36,8 @@ def from_base64(base):
 def b64_to_bytes(base):
     return base64.b64decode(base)
 
-def bytes_to_b64(bytes):
-    return base64.b64encode(bytes)
+def bytes_to_b64(_bytes):
+    return base64.b64encode(_bytes)
 
 
 class Base64Field(models.TextField):
